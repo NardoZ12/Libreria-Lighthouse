@@ -5,43 +5,43 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Search, ArrowRight, Truck, RotateCcw, Shield, Headphones,
-  BookOpen, Atom, Landmark, TrendingUp, Brain, Palette, Smile, Sparkles, Star,
-  ChevronRight
+  BookMarked, Heart, GraduationCap, BookOpen, Sprout, Home, ShieldCheck, Smile,
+  Star, ChevronRight
 } from 'lucide-react'
 import { getFeaturedBooks, getBestsellers, getNewArrivals, categories } from '@/lib/books'
 import BookCard from '@/components/BookCard'
 import BookCover from '@/components/BookCover'
 
 const categoryIcons: Record<string, React.ElementType> = {
-  literatura: BookOpen,
-  ciencia: Atom,
-  historia: Landmark,
-  negocios: TrendingUp,
-  filosofia: Brain,
-  arte: Palette,
-  infantil: Smile,
-  autoayuda: Sparkles,
+  biblias:      BookMarked,
+  devocionales: Heart,
+  teologia:     GraduationCap,
+  literatura:   BookOpen,
+  crecimiento:  Sprout,
+  familia:      Home,
+  apologetica:  ShieldCheck,
+  infantil:     Smile,
 }
 
 const testimonials = [
   {
     name: 'María García',
     location: 'Madrid',
-    text: 'Increíble selección de libros y envío rapidísimo. Recibí mi pedido al día siguiente. ¡Totalmente recomendable!',
+    text: 'Encontré la Biblia de estudio perfecta para mi grupo de célula. El envío fue rapidísimo y el embalaje excelente. Una bendición haber encontrado esta librería.',
     rating: 5,
     avatar: 'MG',
   },
   {
-    name: 'Juan Pérez',
+    name: 'Pastor Juan Pérez',
     location: 'Barcelona',
-    text: 'La mejor librería online en la que he comprado. Los precios son muy competitivos y la atención al cliente es excelente.',
+    text: 'La mejor selección de literatura cristiana en español que he visto online. Compro aquí todos los libros para el ministerio. Precios muy competitivos.',
     rating: 5,
     avatar: 'JP',
   },
   {
     name: 'Ana Rodríguez',
     location: 'Valencia',
-    text: 'Encontré libros que no encontraba en ningún otro sitio. El proceso de compra es sencillo e intuitivo. Muy satisfecha.',
+    text: '"Jesús Llama" llegó al día siguiente. Un regalo precioso para mi hija. Que el Señor bendiga este ministerio de poner Su Palabra en manos de todos.',
     rating: 5,
     avatar: 'AR',
   },
@@ -73,7 +73,6 @@ export default function HomePage() {
     <>
       {/* ── HERO ── */}
       <section className="relative bg-[#0C1F3F] overflow-hidden">
-        {/* Background decorative */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#C8923A]/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-800/20 rounded-full blur-3xl" />
@@ -88,19 +87,22 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left content */}
+            {/* Left */}
             <div>
               <span className="inline-flex items-center gap-2 bg-[#C8923A]/20 text-[#E8AC3A] text-xs font-semibold px-3 py-1.5 rounded-full mb-5 uppercase tracking-widest">
-                <BookOpen size={12} />
-                Tu librería online de confianza
+                <BookMarked size={12} />
+                Tu librería cristiana de confianza
               </span>
               <h1 className="font-serif text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
-                Descubre tu{' '}
-                <span className="text-[#C8923A]">próxima gran</span>{' '}
-                lectura
+                Libros que{' '}
+                <span className="text-[#C8923A]">alimentan</span>{' '}
+                el alma
               </h1>
-              <p className="text-blue-100/70 text-lg leading-relaxed mb-8 max-w-md">
-                Más de 10.000 títulos en todos los géneros. Desde los clásicos que siempre quisiste leer hasta las novedades que el mundo comenta.
+              <p className="text-blue-100/70 text-lg leading-relaxed mb-4">
+                Biblias, devocionales, teología y literatura cristiana para cada etapa de tu camino de fe. Más de 5.000 títulos disponibles.
+              </p>
+              <p className="text-[#E8AC3A]/80 text-sm italic mb-8">
+                «Tu palabra es lámpara a mis pies; es luz en mi sendero.» — Salmo 119:105
               </p>
 
               <form onSubmit={handleSearch} className="flex gap-2 mb-8 max-w-md">
@@ -110,7 +112,7 @@ export default function HomePage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar por título, autor o tema..."
+                    placeholder="Buscar Biblias, devocionales, autores..."
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#C8923A]/30 placeholder-gray-400"
                   />
                 </div>
@@ -124,26 +126,26 @@ export default function HomePage() {
 
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/libros"
+                  href="/libros?category=biblias"
                   className="inline-flex items-center gap-2 bg-white text-[#0C1F3F] px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
                 >
-                  Ver catálogo completo
+                  Ver Biblias
                   <ArrowRight size={16} />
                 </Link>
                 <Link
-                  href="/libros?filter=novedades"
+                  href="/libros"
                   className="inline-flex items-center gap-2 border-2 border-white/25 text-white px-6 py-3 rounded-xl font-semibold hover:border-white/50 hover:bg-white/5 transition-colors"
                 >
-                  Novedades
+                  Catálogo completo
                 </Link>
               </div>
 
               {/* Mini stats */}
               <div className="grid grid-cols-3 gap-4 mt-12 pt-10 border-t border-white/10">
                 {[
-                  { value: '10.000+', label: 'Títulos' },
-                  { value: '50.000+', label: 'Clientes' },
-                  { value: '5 años', label: 'De experiencia' },
+                  { value: '5.000+', label: 'Títulos' },
+                  { value: '20.000+', label: 'Familias servidas' },
+                  { value: '5 años', label: 'Sirviendo' },
                 ].map((stat) => (
                   <div key={stat.label}>
                     <div className="text-2xl font-bold text-white font-serif">{stat.value}</div>
@@ -155,11 +157,9 @@ export default function HomePage() {
 
             {/* Right: Book showcase */}
             <div className="hidden lg:flex justify-center items-center relative h-[420px]">
-              {/* Glow */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-72 h-72 bg-[#C8923A]/15 rounded-full blur-3xl" />
               </div>
-
               {featured.slice(0, 3).map((book, i) => {
                 const transforms = [
                   'rotate-[-8deg] translate-x-[-50px] translate-y-[20px] scale-[0.88] opacity-80',
@@ -191,25 +191,13 @@ export default function HomePage() {
       <div className="bg-[#C8923A] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-center">
-            <span className="flex items-center gap-2">
-              <Truck size={15} />
-              Envío gratis en pedidos +€30
-            </span>
+            <span className="flex items-center gap-2"><Truck size={15} />Envío gratis en pedidos +€30</span>
             <span className="hidden sm:block text-amber-200">•</span>
-            <span className="flex items-center gap-2">
-              <RotateCcw size={15} />
-              Devolución gratuita 30 días
-            </span>
+            <span className="flex items-center gap-2"><RotateCcw size={15} />Devolución gratuita 30 días</span>
             <span className="hidden sm:block text-amber-200">•</span>
-            <span className="flex items-center gap-2">
-              <Shield size={15} />
-              Pago 100% seguro
-            </span>
+            <span className="flex items-center gap-2"><Shield size={15} />Pago 100% seguro</span>
             <span className="hidden sm:block text-amber-200">•</span>
-            <span className="flex items-center gap-2">
-              <Headphones size={15} />
-              Soporte lunes a viernes
-            </span>
+            <span className="flex items-center gap-2"><Headphones size={15} />Asesoramiento personalizado</span>
           </div>
         </div>
       </div>
@@ -218,17 +206,10 @@ export default function HomePage() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">
-              Explora
-            </p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">
-              Nuestras categorías
-            </h2>
+            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Explora</p>
+            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Nuestras secciones</h2>
           </div>
-          <Link
-            href="/libros"
-            className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors"
-          >
+          <Link href="/libros" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
             Ver todas <ChevronRight size={16} />
           </Link>
         </div>
@@ -260,21 +241,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">
-                Los más populares
-              </p>
-              <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">
-                Más vendidos
-              </h2>
+              <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Los más populares</p>
+              <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Más vendidos</h2>
             </div>
-            <Link
-              href="/libros?filter=bestsellers"
-              className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors"
-            >
+            <Link href="/libros?filter=bestsellers" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
               Ver todos <ChevronRight size={16} />
             </Link>
           </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
             {bestsellers.map((book) => (
               <BookCard key={book.id} book={book} />
@@ -296,27 +269,23 @@ export default function HomePage() {
                 Oferta especial
               </span>
               <h2 className="font-serif text-3xl lg:text-4xl font-bold text-white mb-3">
-                Hasta 40% de descuento{' '}
-                <span className="text-[#C8923A]">en Literatura</span>
+                Hasta 35% de descuento{' '}
+                <span className="text-[#C8923A]">en Biblias seleccionadas</span>
               </h2>
               <p className="text-blue-200/70 mb-6">
-                Clásicos y novedades con precios increíbles. Oferta válida hasta agotar existencias.
+                Las mejores ediciones de la Reina Valera, NVI y más. Ponla en manos de tu familia, iglesia o grupo de estudio.
               </p>
               <Link
-                href="/libros?category=literatura&filter=ofertas"
+                href="/libros?category=biblias&filter=ofertas"
                 className="inline-flex items-center gap-2 bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-7 py-3 rounded-xl font-semibold transition-colors"
               >
-                Aprovecha la oferta
+                Ver Biblias en oferta
                 <ArrowRight size={16} />
               </Link>
             </div>
             <div className="hidden lg:flex justify-end gap-4 items-end">
               {bestsellers.slice(0, 3).map((book, i) => (
-                <div
-                  key={book.id}
-                  className="flex-shrink-0"
-                  style={{ marginBottom: i === 1 ? '24px' : '0' }}
-                >
+                <div key={book.id} className="flex-shrink-0" style={{ marginBottom: i === 1 ? '24px' : '0' }}>
                   <BookCover
                     title={book.title}
                     author={book.author}
@@ -334,21 +303,13 @@ export default function HomePage() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">
-              Recién llegados
-            </p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">
-              Novedades
-            </h2>
+            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Recién llegados</p>
+            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Novedades</h2>
           </div>
-          <Link
-            href="/libros?filter=novedades"
-            className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors"
-          >
+          <Link href="/libros?filter=novedades" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
             Ver todas <ChevronRight size={16} />
           </Link>
         </div>
-
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
           {newArrivals.map((book) => (
             <BookCard key={book.id} book={book} />
@@ -360,45 +321,18 @@ export default function HomePage() {
       <section className="py-16 bg-[#FAF7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">
-              ¿Por qué elegirnos?
-            </p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">
-              Tu satisfacción, nuestra prioridad
-            </h2>
+            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">¿Por qué elegirnos?</p>
+            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Sirviendo a tu fe con excelencia</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              {
-                icon: Truck,
-                title: 'Envío rápido',
-                description: 'Entrega en 24-48 h. Envío gratuito en pedidos superiores a €30.',
-                color: '#0C1F3F',
-              },
-              {
-                icon: Shield,
-                title: 'Pago seguro',
-                description: 'Transacciones cifradas con SSL. Visa, Mastercard, PayPal y Bizum.',
-                color: '#059669',
-              },
-              {
-                icon: RotateCcw,
-                title: 'Devolución fácil',
-                description: 'Tienes 30 días para devolver cualquier libro sin preguntas.',
-                color: '#C8923A',
-              },
-              {
-                icon: Headphones,
-                title: 'Soporte experto',
-                description: 'Nuestro equipo de libreros te asesora de lunes a viernes.',
-                color: '#7c3aed',
-              },
+              { icon: Truck,       title: 'Envío rápido',     description: 'Entrega en 24-48 h. Envío gratuito en pedidos superiores a €30. Ideal para iglesias y grupos.',  color: '#0C1F3F' },
+              { icon: Shield,      title: 'Pago seguro',      description: 'Transacciones cifradas. Visa, Mastercard, PayPal y Bizum. Tu compra siempre protegida.',           color: '#059669' },
+              { icon: RotateCcw,  title: 'Devolución fácil', description: 'Tienes 30 días para devolver cualquier libro sin preguntas. Tu satisfacción es nuestra prioridad.', color: '#C8923A' },
+              { icon: Headphones, title: 'Asesoramiento',     description: 'Nuestro equipo te ayuda a encontrar la Biblia o el libro que necesitas para ti, tu familia o iglesia.', color: '#7c3aed' },
             ].map((feature) => (
               <div key={feature.title} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={{ backgroundColor: `${feature.color}15` }}
-                >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: `${feature.color}15` }}>
                   <feature.icon size={24} style={{ color: feature.color }} />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
@@ -413,16 +347,12 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">
-              Opiniones
-            </p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">
-              Lo que dicen nuestros clientes
-            </h2>
+            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">Testimonios</p>
+            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Lo que dice nuestra comunidad</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <div key={t.name} className="bg-[#FAF7F2] rounded-2xl p-6 relative">
+              <div key={t.name} className="bg-[#FAF7F2] rounded-2xl p-6">
                 <div className="flex gap-0.5 mb-4">
                   {[...Array(t.rating)].map((_, i) => (
                     <Star key={i} size={16} className="text-amber-400" fill="currentColor" />
@@ -447,18 +377,14 @@ export default function HomePage() {
       {/* ── NEWSLETTER ── */}
       <section className="py-16 bg-[#0C1F3F]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-3">
-            Únete a nuestra comunidad
-          </p>
-          <h2 className="font-serif text-3xl font-bold text-white mb-3">
-            Suscríbete al boletín
-          </h2>
+          <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-3">Únete a nuestra comunidad</p>
+          <h2 className="font-serif text-3xl font-bold text-white mb-3">Suscríbete al boletín</h2>
           <p className="text-blue-200/60 mb-8">
-            Recibe ofertas exclusivas, novedades literarias y recomendaciones personalizadas.
+            Recibe novedades literarias, reflexiones bíblicas, ofertas exclusivas y recomendaciones de lectura cada semana.
           </p>
           {subscribed ? (
             <div className="bg-green-500/20 border border-green-400/30 text-green-300 rounded-xl px-6 py-4 font-medium">
-              ¡Gracias por suscribirte! Revisa tu correo para confirmar.
+              ¡Gracias por suscribirte! Que Dios bendiga tu lectura.
             </div>
           ) : (
             <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -468,19 +394,14 @@ export default function HomePage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 required
-                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/30 text-sm"
+                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-[#C8923A] text-sm"
               />
-              <button
-                type="submit"
-                className="bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-6 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap"
-              >
+              <button type="submit" className="bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-6 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap">
                 Suscribirme
               </button>
             </form>
           )}
-          <p className="text-blue-200/40 text-xs mt-4">
-            Sin spam. Cancela cuando quieras. Privacidad garantizada.
-          </p>
+          <p className="text-blue-200/40 text-xs mt-4">Sin spam. Cancela cuando quieras.</p>
         </div>
       </section>
     </>

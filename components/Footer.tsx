@@ -1,9 +1,16 @@
 import Link from 'next/link'
-import { BookOpen, MapPin, Phone, Mail, Instagram, Facebook, Twitter } from 'lucide-react'
+import { BookOpen, MapPin, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react'
 
 export default function Footer() {
   return (
     <footer className="bg-[#0C1F3F] text-white">
+      {/* Bible verse */}
+      <div className="border-b border-white/10 py-4 text-center">
+        <p className="text-[#E8AC3A] text-sm italic font-medium px-4">
+          «Tu palabra es lámpara a mis pies; es luz en mi sendero.» — Salmo 119:105
+        </p>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
@@ -17,18 +24,18 @@ export default function Footer() {
                   Light<span className="text-[#C8923A]">house</span>
                 </span>
                 <span className="block text-[10px] text-gray-400 tracking-widest uppercase -mt-0.5">
-                  Librería
+                  Librería Cristiana
                 </span>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-5">
-              Tu librería de confianza desde 2019. Más de 10.000 títulos para todos los gustos y edades.
+              Tu librería cristiana de confianza desde 2019. Biblias, devocionales, teología y literatura cristiana para toda la familia.
             </p>
             <div className="flex gap-3">
               {[
                 { icon: Instagram, href: '#', label: 'Instagram' },
-                { icon: Facebook, href: '#', label: 'Facebook' },
-                { icon: Twitter, href: '#', label: 'Twitter' },
+                { icon: Facebook,  href: '#', label: 'Facebook' },
+                { icon: Youtube,   href: '#', label: 'YouTube' },
               ].map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
@@ -44,23 +51,18 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
-              Navegación
-            </h4>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Navegación</h4>
             <ul className="space-y-2.5">
               {[
-                { href: '/', label: 'Inicio' },
-                { href: '/libros', label: 'Catálogo' },
+                { href: '/',                    label: 'Inicio' },
+                { href: '/libros',              label: 'Catálogo' },
                 { href: '/libros?filter=novedades', label: 'Novedades' },
-                { href: '/libros?filter=ofertas', label: 'Ofertas' },
-                { href: '/nosotros', label: 'Nosotros' },
-                { href: '/contacto', label: 'Contacto' },
+                { href: '/libros?filter=ofertas',   label: 'Ofertas' },
+                { href: '/nosotros',            label: 'Nosotros' },
+                { href: '/contacto',            label: 'Contacto' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors"
-                  >
+                  <Link href={link.href} className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -70,24 +72,20 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
-              Categorías
-            </h4>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Secciones</h4>
             <ul className="space-y-2.5">
               {[
-                { href: '/libros?category=literatura', label: 'Literatura' },
-                { href: '/libros?category=ciencia', label: 'Ciencia y Tecnología' },
-                { href: '/libros?category=historia', label: 'Historia' },
-                { href: '/libros?category=negocios', label: 'Negocios' },
-                { href: '/libros?category=filosofia', label: 'Filosofía' },
-                { href: '/libros?category=arte', label: 'Arte y Diseño' },
-                { href: '/libros?category=autoayuda', label: 'Autoayuda' },
+                { href: '/libros?category=biblias',      label: 'Biblias' },
+                { href: '/libros?category=devocionales', label: 'Devocionales' },
+                { href: '/libros?category=teologia',     label: 'Teología' },
+                { href: '/libros?category=literatura',   label: 'Literatura Cristiana' },
+                { href: '/libros?category=crecimiento',  label: 'Crecimiento Espiritual' },
+                { href: '/libros?category=familia',      label: 'Familia y Matrimonio' },
+                { href: '/libros?category=apologetica',  label: 'Apologética' },
+                { href: '/libros?category=infantil',     label: 'Infantil y Juvenil' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors"
-                  >
+                  <Link href={link.href} className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -97,9 +95,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
-              Contacto
-            </h4>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Contacto</h4>
             <ul className="space-y-3">
               <li className="flex gap-3 text-sm text-gray-400">
                 <MapPin size={16} className="text-[#C8923A] flex-shrink-0 mt-0.5" />

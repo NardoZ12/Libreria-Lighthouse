@@ -9,8 +9,8 @@ import { formatPrice } from '@/lib/utils'
 export default function CarritoPage() {
   const { items, removeItem, updateQuantity, totalItems, totalPrice } = useCart()
 
-  const shippingFree = totalPrice >= 30
-  const shipping = shippingFree ? 0 : 3.99
+  const shippingFree = totalPrice >= 1500
+  const shipping = shippingFree ? 0 : 150
   const total = totalPrice + shipping
 
   return (
@@ -44,7 +44,7 @@ export default function CarritoPage() {
             </p>
             <Link
               href="/libros"
-              className="inline-flex items-center gap-2 bg-[#C8923A] text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-[#A97626] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#F97316] text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-[#C2570F] transition-colors"
             >
               Explorar catálogo
               <ArrowRight size={16} />
@@ -71,7 +71,7 @@ export default function CarritoPage() {
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div>
                         <Link href={`/libros/${item.id}`}>
-                          <h3 className="font-bold text-gray-900 hover:text-[#C8923A] transition-colors leading-snug mb-1">
+                          <h3 className="font-bold text-gray-900 hover:text-[#F97316] transition-colors leading-snug mb-1">
                             {item.title}
                           </h3>
                         </Link>
@@ -116,7 +116,7 @@ export default function CarritoPage() {
               <div className="flex items-center justify-between mt-4">
                 <Link
                   href="/libros"
-                  className="text-sm text-[#C8923A] font-medium hover:text-[#A97626] flex items-center gap-1 transition-colors"
+                  className="text-sm text-[#F97316] font-medium hover:text-[#C2570F] flex items-center gap-1 transition-colors"
                 >
                   ← Seguir comprando
                 </Link>
@@ -128,14 +128,14 @@ export default function CarritoPage() {
               {/* Coupon */}
               <div className="bg-white rounded-2xl shadow-sm p-5">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <Tag size={16} className="text-[#C8923A]" />
+                  <Tag size={16} className="text-[#F97316]" />
                   Código de descuento
                 </h3>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder="Introduce tu código"
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#C8923A]"
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#F97316]"
                   />
                   <button className="bg-[#0C1F3F] text-white px-4 rounded-lg text-sm font-medium hover:bg-[#1a3a6b] transition-colors">
                     Aplicar
@@ -149,7 +149,7 @@ export default function CarritoPage() {
 
                 {!shippingFree && (
                   <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700 text-center">
-                    Añade <strong>{formatPrice(30 - totalPrice)}</strong> más para{' '}
+                    Añade <strong>{formatPrice(1500 - totalPrice)}</strong> más para{' '}
                     <strong>envío gratis</strong>
                   </div>
                 )}
@@ -180,7 +180,7 @@ export default function CarritoPage() {
 
                 <Link
                   href="/checkout"
-                  className="flex items-center justify-center gap-2 w-full bg-[#C8923A] hover:bg-[#A97626] text-white py-4 rounded-xl font-bold text-base transition-colors"
+                  className="flex items-center justify-center gap-2 w-full bg-[#F97316] hover:bg-[#C2570F] text-white py-4 rounded-xl font-bold text-base transition-colors"
                 >
                   Proceder al pago
                   <ArrowRight size={18} />

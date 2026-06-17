@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="bg-[#0C1F3F] text-white">
       {/* Bible verse */}
       <div className="border-b border-white/10 py-4 text-center">
-        <p className="text-[#E8AC3A] text-sm italic font-medium px-4">
+        <p className="text-[#FB923C] text-sm italic font-medium px-4">
           «Tu palabra es lámpara a mis pies; es luz en mi sendero.» — Salmo 119:105
         </p>
       </div>
@@ -16,12 +16,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-[#C8923A] rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-[#F97316] rounded-lg flex items-center justify-center">
                 <BookOpen size={20} className="text-white" />
               </div>
               <div>
                 <span className="font-serif font-bold text-xl text-white">
-                  Light<span className="text-[#C8923A]">house</span>
+                  Light<span className="text-[#F97316]">house</span>
                 </span>
                 <span className="block text-[10px] text-gray-400 tracking-widest uppercase -mt-0.5">
                   Librería Cristiana
@@ -41,7 +41,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#C8923A] flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#F97316] flex items-center justify-center transition-colors"
                 >
                   <Icon size={16} />
                 </a>
@@ -62,7 +62,7 @@ export default function Footer() {
                 { href: '/contacto',            label: 'Contacto' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors">
+                  <Link href={link.href} className="text-gray-400 hover:text-[#F97316] text-sm transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -75,17 +75,16 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Secciones</h4>
             <ul className="space-y-2.5">
               {[
-                { href: '/libros?category=biblias',      label: 'Biblias' },
-                { href: '/libros?category=devocionales', label: 'Devocionales' },
-                { href: '/libros?category=teologia',     label: 'Teología' },
-                { href: '/libros?category=literatura',   label: 'Literatura Cristiana' },
-                { href: '/libros?category=crecimiento',  label: 'Crecimiento Espiritual' },
-                { href: '/libros?category=familia',      label: 'Familia y Matrimonio' },
-                { href: '/libros?category=apologetica',  label: 'Apologética' },
-                { href: '/libros?category=infantil',     label: 'Infantil y Juvenil' },
+                { href: '/#biblias',               label: 'Biblias' },
+                { href: '/#devocionales',          label: 'Devocionales' },
+                { href: '/#guerra-espiritual',      label: 'Guerra Espiritual' },
+                { href: '/#finanzas',               label: 'Finanzas' },
+                { href: '/#crecimiento-personal',   label: 'Crecimiento Personal' },
+                { href: '/#combos',                 label: 'Combos' },
+                { href: '/#ofertas',                label: 'Ofertas' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-gray-400 hover:text-[#C8923A] text-sm transition-colors">
+                  <Link href={link.href} className="text-gray-400 hover:text-[#F97316] text-sm transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -98,19 +97,19 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Contacto</h4>
             <ul className="space-y-3">
               <li className="flex gap-3 text-sm text-gray-400">
-                <MapPin size={16} className="text-[#C8923A] flex-shrink-0 mt-0.5" />
-                <span>Calle Mayor 42, 28013 Madrid</span>
+                <MapPin size={16} className="text-[#F97316] flex-shrink-0 mt-0.5" />
+                <span>Av. Winston Churchill, Santo Domingo, República Dominicana</span>
               </li>
               <li className="flex gap-3 text-sm">
-                <Phone size={16} className="text-[#C8923A] flex-shrink-0 mt-0.5" />
-                <a href="tel:+34912345678" className="text-gray-400 hover:text-white transition-colors">
-                  +34 912 345 678
+                <Phone size={16} className="text-[#F97316] flex-shrink-0 mt-0.5" />
+                <a href="tel:+18095551234" className="text-gray-400 hover:text-white transition-colors">
+                  +1 (809) 555-1234
                 </a>
               </li>
               <li className="flex gap-3 text-sm">
-                <Mail size={16} className="text-[#C8923A] flex-shrink-0 mt-0.5" />
-                <a href="mailto:hola@librerialighthouse.es" className="text-gray-400 hover:text-white transition-colors">
-                  hola@librerialighthouse.es
+                <Mail size={16} className="text-[#F97316] flex-shrink-0 mt-0.5" />
+                <a href="mailto:hola@librerialighthouse.do" className="text-gray-400 hover:text-white transition-colors">
+                  hola@librerialighthouse.do
                 </a>
               </li>
             </ul>

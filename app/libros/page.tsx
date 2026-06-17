@@ -35,12 +35,16 @@ function CatalogoContent() {
   const [search, setSearch] = useState(initialQ)
   const [selectedCategory, setSelectedCategory] = useState(initialCat)
   const [sort, setSort] = useState('relevance')
-  const [priceMax, setPriceMax] = useState(50)
+  const [priceMax, setPriceMax] = useState(1500)
   const [minRating, setMinRating] = useState(0)
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [filterOpen, setFilterOpen] = useState(false)
 
   const allBooks = getAllBooks()
+  const categoryCounts: Record<string, number> = {}
+  allBooks.forEach((b) => {
+    categoryCounts[b.categorySlug] = (categoryCounts[b.categorySlug] ?? 0) + 1
+  })
 
   const filteredBooks = applySort(
     allBooks.filter((book) => {
@@ -86,12 +90,12 @@ function CatalogoContent() {
   const clearFilters = () => {
     setSearch('')
     setSelectedCategory('')
-    setPriceMax(50)
+    setPriceMax(1500)
     setMinRating(0)
     router.push('/libros')
   }
 
-  const hasActiveFilters = selectedCategory || priceMax < 50 || minRating > 0
+  const hasActiveFilters = selectedCategory || priceMax < 1500 || minRating > 0
 
   return (
     <div className="min-h-screen">
@@ -118,7 +122,7 @@ function CatalogoContent() {
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="text-xs text-[#C8923A] hover:text-[#A97626] font-medium flex items-center gap-1"
+                    className="text-xs text-[#F97316] hover:text-[#C2570F] font-medium flex items-center gap-1"
                   >
                     <X size={12} />
                     Limpiar
@@ -159,7 +163,7 @@ function CatalogoContent() {
                     >
                       <span>{cat.name}</span>
                       <span className={`text-xs ${selectedCategory === cat.slug ? 'text-white/60' : 'text-gray-400'}`}>
-                        {cat.count}
+                        {categoryCounts[cat.slug] ?? 0}
                       </span>
                     </button>
                   ))}
@@ -169,20 +173,20 @@ function CatalogoContent() {
               {/* Price */}
               <div className="mb-5">
                 <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Precio máximo: <span className="text-gray-900">€{priceMax}</span>
+                  Precio máximo: <span className="text-gray-900">RD${priceMax.toLocaleString('es-DO')}</span>
                 </h4>
                 <input
                   type="range"
-                  min={5}
-                  max={50}
-                  step={5}
+                  min={100}
+                  max={1500}
+                  step={50}
                   value={priceMax}
                   onChange={(e) => setPriceMax(Number(e.target.value))}
-                  className="w-full accent-[#C8923A]"
+                  className="w-full accent-gold"
                 />
                 <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>€5</span>
-                  <span>€50</span>
+                  <span>RD$100</span>
+                  <span>RD$1,500</span>
                 </div>
               </div>
 
@@ -228,7 +232,7 @@ function CatalogoContent() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Buscar en el catálogo..."
-                  className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C8923A] bg-white"
+                  className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F97316] bg-white"
                 />
               </form>
 
@@ -239,7 +243,7 @@ function CatalogoContent() {
                 <SlidersHorizontal size={15} />
                 Filtros
                 {hasActiveFilters && (
-                  <span className="w-4 h-4 bg-[#C8923A] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                  <span className="w-4 h-4 bg-[#F97316] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                     !
                   </span>
                 )}
@@ -249,7 +253,7 @@ function CatalogoContent() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  className="appearance-none pl-3 pr-8 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:border-[#C8923A] cursor-pointer"
+                  className="appearance-none pl-3 pr-8 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:border-[#F97316] cursor-pointer"
                 >
                   {SORT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -302,7 +306,7 @@ function CatalogoContent() {
                 <p className="text-gray-400 text-sm mb-5">Prueba con otros filtros o términos de búsqueda</p>
                 <button
                   onClick={clearFilters}
-                  className="bg-[#C8923A] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#A97626] transition-colors"
+                  className="bg-[#F97316] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#C2570F] transition-colors"
                 >
                   Ver todos los libros
                 </button>

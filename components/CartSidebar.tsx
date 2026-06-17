@@ -8,8 +8,8 @@ import { formatPrice } from '@/lib/utils'
 
 export default function CartSidebar() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, totalItems, totalPrice } = useCart()
-  const shippingFree = totalPrice >= 30
-  const shipping = shippingFree ? 0 : 3.99
+  const shippingFree = totalPrice >= 1500
+  const shipping = shippingFree ? 0 : 150
 
   if (!isOpen) return null
 
@@ -26,7 +26,7 @@ export default function CartSidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <ShoppingBag size={20} className="text-[#C8923A]" />
+            <ShoppingBag size={20} className="text-[#F97316]" />
             <h2 className="font-bold text-gray-900 text-lg">
               Tu carrito
               {totalItems > 0 && (
@@ -52,7 +52,7 @@ export default function CartSidebar() {
               <Link
                 href="/libros"
                 onClick={closeCart}
-                className="bg-[#C8923A] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#A97626] transition-colors"
+                className="bg-[#F97316] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#C2570F] transition-colors"
               >
                 Explorar catálogo
               </Link>
@@ -70,7 +70,7 @@ export default function CartSidebar() {
                   <Link
                     href={`/libros/${item.id}`}
                     onClick={closeCart}
-                    className="text-sm font-semibold text-gray-900 hover:text-[#C8923A] line-clamp-2 leading-snug block"
+                    className="text-sm font-semibold text-gray-900 hover:text-[#F97316] line-clamp-2 leading-snug block"
                   >
                     {item.title}
                   </Link>
@@ -116,7 +116,7 @@ export default function CartSidebar() {
           <div className="border-t border-gray-100 px-6 py-4 space-y-3 bg-gray-50">
             {!shippingFree && (
               <div className="text-xs text-center text-gray-500 bg-amber-50 border border-amber-100 rounded-lg p-2">
-                Añade <strong>{formatPrice(30 - totalPrice)}</strong> más para envío gratis
+                Añade <strong>{formatPrice(1500 - totalPrice)}</strong> más para envío gratis
               </div>
             )}
             {shippingFree && (
@@ -145,7 +145,7 @@ export default function CartSidebar() {
             <Link
               href="/checkout"
               onClick={closeCart}
-              className="flex items-center justify-center gap-2 w-full bg-[#C8923A] hover:bg-[#A97626] text-white py-3 rounded-xl font-semibold transition-colors"
+              className="flex items-center justify-center gap-2 w-full bg-[#F97316] hover:bg-[#C2570F] text-white py-3 rounded-xl font-semibold transition-colors"
             >
               Proceder al pago
               <ArrowRight size={16} />

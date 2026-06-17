@@ -5,47 +5,51 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Search, ArrowRight, Truck, RotateCcw, Shield, Headphones,
-  BookMarked, Heart, GraduationCap, BookOpen, Sprout, Home, ShieldCheck, Smile,
-  Star, ChevronRight
+  BookMarked, Star, Sparkles, Tag,
 } from 'lucide-react'
-import { getFeaturedBooks, getBestsellers, getNewArrivals, categories } from '@/lib/books'
+import {
+  getFeaturedBooks,
+  getBooksBySubcategory,
+  getBooksByCategory,
+  getCombos,
+  getOfertas,
+} from '@/lib/books'
 import BookCard from '@/components/BookCard'
+import ComboCard from '@/components/ComboCard'
 import BookCover from '@/components/BookCover'
-
-const categoryIcons: Record<string, React.ElementType> = {
-  biblias:      BookMarked,
-  devocionales: Heart,
-  teologia:     GraduationCap,
-  literatura:   BookOpen,
-  crecimiento:  Sprout,
-  familia:      Home,
-  apologetica:  ShieldCheck,
-  infantil:     Smile,
-}
+import Carousel from '@/components/Carousel'
 
 const testimonials = [
   {
     name: 'María García',
-    location: 'Madrid',
+    location: 'Santo Domingo',
     text: 'Encontré la Biblia de estudio perfecta para mi grupo de célula. El envío fue rapidísimo y el embalaje excelente. Una bendición haber encontrado esta librería.',
     rating: 5,
     avatar: 'MG',
   },
   {
     name: 'Pastor Juan Pérez',
-    location: 'Barcelona',
+    location: 'Santiago de los Caballeros',
     text: 'La mejor selección de literatura cristiana en español que he visto online. Compro aquí todos los libros para el ministerio. Precios muy competitivos.',
     rating: 5,
     avatar: 'JP',
   },
   {
     name: 'Ana Rodríguez',
-    location: 'Valencia',
+    location: 'Punta Cana',
     text: '"Jesús Llama" llegó al día siguiente. Un regalo precioso para mi hija. Que el Señor bendiga este ministerio de poner Su Palabra en manos de todos.',
     rating: 5,
     avatar: 'AR',
   },
 ]
+
+function BookCarouselItem({ book }: { book: ReturnType<typeof getFeaturedBooks>[number] }) {
+  return (
+    <div data-carousel-item className="carousel-item flex-shrink-0 w-[170px] sm:w-[200px]">
+      <BookCard book={book} />
+    </div>
+  )
+}
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -53,9 +57,23 @@ export default function HomePage() {
   const [subscribed, setSubscribed] = useState(false)
   const router = useRouter()
 
-  const bestsellers = getBestsellers().slice(0, 8)
-  const newArrivals = getNewArrivals().slice(0, 4)
   const featured = getFeaturedBooks()
+  const combos = getCombos()
+  const ofertas = getOfertas()
+
+  const bibliasDamas = getBooksBySubcategory('biblias', 'damas')
+  const bibliasVarones = getBooksBySubcategory('biblias', 'varones')
+  const bibliasJuveniles = getBooksBySubcategory('biblias', 'juveniles')
+  const bibliasInfantiles = getBooksBySubcategory('biblias', 'infantiles')
+  const bibliasPastorales = getBooksBySubcategory('biblias', 'pastorales')
+  const bibliasEstudio = getBooksBySubcategory('biblias', 'estudio')
+
+  const devocionalesDamas = getBooksBySubcategory('devocionales', 'damas')
+  const devocionalesVarones = getBooksBySubcategory('devocionales', 'varones')
+
+  const guerraEspiritual = getBooksByCategory('guerra-espiritual')
+  const finanzas = getBooksByCategory('finanzas')
+  const crecimientoPersonal = getBooksByCategory('crecimiento-personal')
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,7 +92,7 @@ export default function HomePage() {
       {/* ── HERO ── */}
       <section className="relative bg-[#0C1F3F] overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#C8923A]/10 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-800/20 rounded-full blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -89,19 +107,19 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
             <div>
-              <span className="inline-flex items-center gap-2 bg-[#C8923A]/20 text-[#E8AC3A] text-xs font-semibold px-3 py-1.5 rounded-full mb-5 uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 bg-gold/20 text-gold-light text-xs font-semibold px-3 py-1.5 rounded-full mb-5 uppercase tracking-widest">
                 <BookMarked size={12} />
-                Tu librería cristiana de confianza
+                Tu librería cristiana en República Dominicana
               </span>
               <h1 className="font-serif text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
                 Libros que{' '}
-                <span className="text-[#C8923A]">alimentan</span>{' '}
+                <span className="text-gold">alimentan</span>{' '}
                 el alma
               </h1>
               <p className="text-blue-100/70 text-lg leading-relaxed mb-4">
-                Biblias, devocionales, teología y literatura cristiana para cada etapa de tu camino de fe. Más de 5.000 títulos disponibles.
+                Biblias, devocionales, guerra espiritual, finanzas bíblicas y crecimiento personal para cada etapa de tu camino de fe. Más de 5.000 títulos disponibles.
               </p>
-              <p className="text-[#E8AC3A]/80 text-sm italic mb-8">
+              <p className="text-gold-light/80 text-sm italic mb-8">
                 «Tu palabra es lámpara a mis pies; es luz en mi sendero.» — Salmo 119:105
               </p>
 
@@ -113,12 +131,12 @@ export default function HomePage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar Biblias, devocionales, autores..."
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#C8923A]/30 placeholder-gray-400"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30 placeholder-gray-400"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#C8923A] hover:bg-[#A97626] text-white px-5 rounded-xl font-medium transition-colors flex-shrink-0"
+                  className="bg-gold hover:bg-gold-dark text-white px-5 rounded-xl font-medium transition-colors flex-shrink-0"
                 >
                   Buscar
                 </button>
@@ -126,7 +144,7 @@ export default function HomePage() {
 
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/libros?category=biblias"
+                  href="/#biblias"
                   className="inline-flex items-center gap-2 bg-white text-[#0C1F3F] px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
                 >
                   Ver Biblias
@@ -158,7 +176,7 @@ export default function HomePage() {
             {/* Right: Book showcase */}
             <div className="hidden lg:flex justify-center items-center relative h-[420px]">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-72 h-72 bg-[#C8923A]/15 rounded-full blur-3xl" />
+                <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
               </div>
               {featured.slice(0, 3).map((book, i) => {
                 const transforms = [
@@ -177,6 +195,7 @@ export default function HomePage() {
                       author={book.author}
                       coverColors={book.coverColors}
                       category={book.category}
+                      image={book.image}
                       size="xl"
                     />
                   </div>
@@ -188,10 +207,10 @@ export default function HomePage() {
       </section>
 
       {/* ── PROMO STRIP ── */}
-      <div className="bg-[#C8923A] text-white">
+      <div className="bg-gold text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-center">
-            <span className="flex items-center gap-2"><Truck size={15} />Envío gratis en pedidos +€30</span>
+            <span className="flex items-center gap-2"><Truck size={15} />Envío gratis en pedidos +RD$1,500</span>
             <span className="hidden sm:block text-amber-200">•</span>
             <span className="flex items-center gap-2"><RotateCcw size={15} />Devolución gratuita 30 días</span>
             <span className="hidden sm:block text-amber-200">•</span>
@@ -202,118 +221,131 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── CATEGORIES ── */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Explora</p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Nuestras secciones</h2>
-          </div>
-          <Link href="/libros" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
-            Ver todas <ChevronRight size={16} />
-          </Link>
+      {/* ── BIBLIAS ── */}
+      <section id="biblias" className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10">
+          <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-1">Explora</p>
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold text-[#0C1F3F]">Biblias</h2>
+          <p className="text-gray-500 mt-2 max-w-2xl mx-auto">
+            Encuentra la Biblia perfecta para cada miembro de tu familia y tu ministerio.
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          {categories.map((cat) => {
-            const Icon = categoryIcons[cat.slug] ?? BookOpen
-            return (
-              <Link
-                key={cat.slug}
-                href={`/libros?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-2.5 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-center"
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
-                  style={{ backgroundColor: cat.lightColor }}
-                >
-                  <Icon size={22} style={{ color: cat.color }} />
-                </div>
-                <span className="text-xs font-semibold text-gray-700 leading-tight">{cat.name}</span>
-              </Link>
-            )
-          })}
+        <div className="space-y-10">
+          <Carousel title="Damas">
+            {bibliasDamas.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+          <Carousel title="Varones">
+            {bibliasVarones.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+          <Carousel title="Juveniles">
+            {bibliasJuveniles.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+          <Carousel title="Infantiles">
+            {bibliasInfantiles.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+          <Carousel title="Pastorales">
+            {bibliasPastorales.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+          <Carousel title="De Estudio">
+            {bibliasEstudio.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
         </div>
       </section>
 
-      {/* ── BESTSELLERS ── */}
-      <section className="py-16 bg-white">
+      {/* ── DEVOCIONALES ── */}
+      <section id="devocionales" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Los más populares</p>
-              <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Más vendidos</h2>
-            </div>
-            <Link href="/libros?filter=bestsellers" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
-              Ver todos <ChevronRight size={16} />
-            </Link>
+          <div className="text-center mb-10">
+            <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-1">Reflexiones diarias</p>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-[#0C1F3F]">Devocionales</h2>
+            <p className="text-gray-500 mt-2 max-w-2xl mx-auto">
+              Acompaña tu tiempo a solas con Dios con devocionales escritos para ti.
+            </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-            {bestsellers.map((book) => (
-              <BookCard key={book.id} book={book} />
+
+          <div className="space-y-10">
+            <Carousel title="Damas">
+              {devocionalesDamas.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+            </Carousel>
+            <Carousel title="Varones">
+              {devocionalesVarones.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
+      {/* ── GUERRA ESPIRITUAL ── */}
+      <section id="guerra-espiritual" className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
+        <Carousel
+          title="Guerra Espiritual"
+          subtitle="Armas espirituales para la batalla diaria"
+        >
+          {guerraEspiritual.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+        </Carousel>
+      </section>
+
+      {/* ── FINANZAS ── */}
+      <section id="finanzas" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <Carousel
+            title="Finanzas"
+            subtitle="Sabiduría bíblica para administrar tus recursos"
+          >
+            {finanzas.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+          </Carousel>
+        </div>
+      </section>
+
+      {/* ── CRECIMIENTO PERSONAL ── */}
+      <section id="crecimiento-personal" className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
+        <Carousel
+          title="Crecimiento Personal"
+          subtitle="Transforma tu vida con la Palabra"
+        >
+          {crecimientoPersonal.map((book) => <BookCarouselItem key={book.id} book={book} />)}
+        </Carousel>
+      </section>
+
+      {/* ── COMBOS ── */}
+      <section id="combos" className="py-16 bg-gradient-to-br from-[#0C1F3F] to-[#16315c]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 bg-gold/20 text-gold-light text-xs font-semibold px-3 py-1.5 rounded-full mb-3 uppercase tracking-widest">
+              <Sparkles size={12} />
+              Paquetes especiales
+            </span>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-white">Combos</h2>
+            <p className="text-blue-200/60 mt-2 max-w-2xl mx-auto">
+              Ahorra más comprando paquetes pensados para tu familia y tu ministerio.
+            </p>
+          </div>
+          <div className="flex gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide justify-center flex-wrap">
+            {combos.map((combo) => (
+              <ComboCard key={combo.id} combo={combo} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PROMO BANNER ── */}
-      <section className="py-6 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="relative bg-[#0C1F3F] rounded-2xl overflow-hidden px-8 py-10 lg:px-16">
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-10 right-0 w-72 h-72 bg-[#C8923A]/15 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-700/20 rounded-full blur-2xl" />
+      {/* ── OFERTAS ── */}
+      <section id="ofertas" className="py-16 bg-gradient-to-br from-amber-50 to-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-3 uppercase tracking-widest">
+              <Tag size={12} />
+              Descuentos por tiempo limitado
+            </span>
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-[#0C1F3F]">Ofertas</h2>
+            <p className="text-gray-500 mt-2 max-w-2xl mx-auto">
+              Aprovecha estos precios especiales antes de que se agoten.
+            </p>
           </div>
-          <div className="relative grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <span className="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-4">
-                Oferta especial
-              </span>
-              <h2 className="font-serif text-3xl lg:text-4xl font-bold text-white mb-3">
-                Hasta 35% de descuento{' '}
-                <span className="text-[#C8923A]">en Biblias seleccionadas</span>
-              </h2>
-              <p className="text-blue-200/70 mb-6">
-                Las mejores ediciones de la Reina Valera, NVI y más. Ponla en manos de tu familia, iglesia o grupo de estudio.
-              </p>
-              <Link
-                href="/libros?category=biblias&filter=ofertas"
-                className="inline-flex items-center gap-2 bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-7 py-3 rounded-xl font-semibold transition-colors"
-              >
-                Ver Biblias en oferta
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="hidden lg:flex justify-end gap-4 items-end">
-              {bestsellers.slice(0, 3).map((book, i) => (
-                <div key={book.id} className="flex-shrink-0" style={{ marginBottom: i === 1 ? '24px' : '0' }}>
-                  <BookCover
-                    title={book.title}
-                    author={book.author}
-                    coverColors={book.coverColors}
-                    size={i === 1 ? 'lg' : 'md'}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
+            {ofertas.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── NEW ARRIVALS ── */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-1">Recién llegados</p>
-            <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Novedades</h2>
-          </div>
-          <Link href="/libros?filter=novedades" className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#C8923A] hover:text-[#A97626] transition-colors">
-            Ver todas <ChevronRight size={16} />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-          {newArrivals.map((book) => (
-            <BookCard key={book.id} book={book} />
-          ))}
         </div>
       </section>
 
@@ -321,14 +353,14 @@ export default function HomePage() {
       <section className="py-16 bg-[#FAF7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">¿Por qué elegirnos?</p>
+            <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-2">¿Por qué elegirnos?</p>
             <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Sirviendo a tu fe con excelencia</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Truck,       title: 'Envío rápido',     description: 'Entrega en 24-48 h. Envío gratuito en pedidos superiores a €30. Ideal para iglesias y grupos.',  color: '#0C1F3F' },
-              { icon: Shield,      title: 'Pago seguro',      description: 'Transacciones cifradas. Visa, Mastercard, PayPal y Bizum. Tu compra siempre protegida.',           color: '#059669' },
-              { icon: RotateCcw,  title: 'Devolución fácil', description: 'Tienes 30 días para devolver cualquier libro sin preguntas. Tu satisfacción es nuestra prioridad.', color: '#C8923A' },
+              { icon: Truck,       title: 'Envío rápido',     description: 'Entrega en 24-48 h. Envío gratuito en pedidos superiores a RD$1,500. Ideal para iglesias y grupos.',  color: '#0C1F3F' },
+              { icon: Shield,      title: 'Pago seguro',      description: 'Transacciones cifradas. Tarjetas de crédito y débito. Tu compra siempre protegida.',           color: '#059669' },
+              { icon: RotateCcw,  title: 'Devolución fácil', description: 'Tienes 30 días para devolver cualquier libro sin preguntas. Tu satisfacción es nuestra prioridad.', color: '#F97316' },
               { icon: Headphones, title: 'Asesoramiento',     description: 'Nuestro equipo te ayuda a encontrar la Biblia o el libro que necesitas para ti, tu familia o iglesia.', color: '#7c3aed' },
             ].map((feature) => (
               <div key={feature.title} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -347,7 +379,7 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">Testimonios</p>
+            <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-2">Testimonios</p>
             <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Lo que dice nuestra comunidad</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -377,7 +409,7 @@ export default function HomePage() {
       {/* ── NEWSLETTER ── */}
       <section className="py-16 bg-[#0C1F3F]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-3">Únete a nuestra comunidad</p>
+          <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">Únete a nuestra comunidad</p>
           <h2 className="font-serif text-3xl font-bold text-white mb-3">Suscríbete al boletín</h2>
           <p className="text-blue-200/60 mb-8">
             Recibe novedades literarias, reflexiones bíblicas, ofertas exclusivas y recomendaciones de lectura cada semana.
@@ -394,9 +426,9 @@ export default function HomePage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 required
-                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-[#C8923A] text-sm"
+                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-gold text-sm"
               />
-              <button type="submit" className="bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-6 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap">
+              <button type="submit" className="bg-gold hover:bg-gold-dark text-white px-6 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap">
                 Suscribirme
               </button>
             </form>

@@ -37,7 +37,7 @@ export default function NosotrosPage() {
           <div style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} className="w-full h-full" />
         </div>
         <div className="max-w-4xl mx-auto text-center relative">
-          <span className="inline-block bg-[#C8923A]/20 text-[#E8AC3A] text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-widest mb-5">
+          <span className="inline-block bg-[#F97316]/20 text-[#FB923C] text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-widest mb-5">
             Nuestra historia
           </span>
           <h1 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
@@ -46,14 +46,14 @@ export default function NosotrosPage() {
           <p className="text-blue-200/70 text-lg leading-relaxed max-w-2xl mx-auto mb-6">
             Somos una librería cristiana nacida del amor por la Escritura y el deseo de servir al cuerpo de Cristo en España y el mundo hispano.
           </p>
-          <p className="text-[#E8AC3A]/80 text-sm italic">
+          <p className="text-[#FB923C]/80 text-sm italic">
             «No solo de pan vivirá el hombre, sino de toda palabra que sale de la boca de Dios.» — Mateo 4:4
           </p>
         </div>
       </section>
 
       {/* Stats */}
-      <div className="bg-[#C8923A] text-white py-8 px-4 sm:px-6">
+      <div className="bg-[#F97316] text-white py-8 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { value: '5.000+',  label: 'Títulos en catálogo' },
@@ -89,7 +89,7 @@ export default function NosotrosPage() {
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">Trayectoria</p>
+            <p className="text-[#F97316] text-sm font-semibold uppercase tracking-widest mb-2">Trayectoria</p>
             <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Nuestra obra hasta hoy</h2>
           </div>
           <div className="relative">
@@ -99,13 +99,13 @@ export default function NosotrosPage() {
                 <div key={m.year} className={`flex gap-6 items-start ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} md:gap-0`}>
                   <div className={`flex-1 ${i % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
                     <div className="bg-[#FAF7F2] rounded-2xl p-5 inline-block w-full">
-                      <span className="text-[#C8923A] font-bold text-lg">{m.year}</span>
+                      <span className="text-[#F97316] font-bold text-lg">{m.year}</span>
                       <h3 className="font-bold text-gray-900 text-lg mt-1">{m.title}</h3>
                       <p className="text-gray-500 text-sm mt-1">{m.description}</p>
                     </div>
                   </div>
                   <div className="relative flex-shrink-0 hidden md:flex items-start justify-center w-12">
-                    <div className="w-4 h-4 rounded-full bg-[#C8923A] border-4 border-white shadow-md mt-5 z-10" />
+                    <div className="w-4 h-4 rounded-full bg-[#F97316] border-4 border-white shadow-md mt-5 z-10" />
                   </div>
                   <div className="flex-1 hidden md:block" />
                 </div>
@@ -118,14 +118,14 @@ export default function NosotrosPage() {
       {/* Values */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">Lo que nos mueve</p>
+          <p className="text-[#F97316] text-sm font-semibold uppercase tracking-widest mb-2">Lo que nos mueve</p>
           <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">Nuestros valores</h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {values.map((v) => (
             <div key={v.title} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow text-center">
               <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <v.icon size={22} className="text-[#C8923A]" />
+                <v.icon size={22} className="text-[#F97316]" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">{v.title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed">{v.description}</p>
@@ -138,7 +138,7 @@ export default function NosotrosPage() {
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#C8923A] text-sm font-semibold uppercase tracking-widest mb-2">Personas</p>
+            <p className="text-[#F97316] text-sm font-semibold uppercase tracking-widest mb-2">Personas</p>
             <h2 className="font-serif text-3xl font-bold text-[#0C1F3F]">El equipo</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -148,7 +148,7 @@ export default function NosotrosPage() {
                   {member.initials}
                 </div>
                 <h3 className="font-bold text-gray-900">{member.name}</h3>
-                <p className="text-[#C8923A] text-sm font-medium mb-2">{member.role}</p>
+                <p className="text-[#F97316] text-sm font-medium mb-2">{member.role}</p>
                 <p className="text-gray-500 text-sm leading-relaxed">{member.bio}</p>
               </div>
             ))}
@@ -167,7 +167,7 @@ export default function NosotrosPage() {
           </p>
           <Link
             href="/libros"
-            className="inline-flex items-center gap-2 bg-[#C8923A] hover:bg-[#E8AC3A] text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+            className="inline-flex items-center gap-2 bg-[#F97316] hover:bg-[#FB923C] text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
           >
             Explorar catálogo
             <ChevronRight size={18} />

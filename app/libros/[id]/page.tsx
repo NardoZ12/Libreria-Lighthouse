@@ -41,13 +41,13 @@ export default function BookPage({ params }: { params: { id: string } }) {
       <div className="bg-[#0C1F3F]/5 border-b border-gray-200 py-3 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/" className="hover:text-[#C8923A] transition-colors">Inicio</Link>
+            <Link href="/" className="hover:text-[#F97316] transition-colors">Inicio</Link>
             <ChevronRight size={14} />
-            <Link href="/libros" className="hover:text-[#C8923A] transition-colors">Catálogo</Link>
+            <Link href="/libros" className="hover:text-[#F97316] transition-colors">Catálogo</Link>
             <ChevronRight size={14} />
             <Link
               href={`/libros?category=${book.categorySlug}`}
-              className="hover:text-[#C8923A] transition-colors"
+              className="hover:text-[#F97316] transition-colors"
             >
               {book.category}
             </Link>
@@ -67,9 +67,15 @@ export default function BookPage({ params }: { params: { id: string } }) {
               author={book.author}
               coverColors={book.coverColors}
               category={book.category}
+              image={book.image}
               size="xl"
               className="shadow-2xl"
             />
+            {book.version && (
+              <span className="text-xs font-semibold text-gold-dark bg-gold-50 px-3 py-1 rounded-full border border-gold-200">
+                {book.version}
+              </span>
+            )}
             <div className="flex gap-2 text-sm text-gray-500">
               <button className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg hover:border-red-300 hover:text-red-500 transition-colors">
                 <Heart size={15} />
@@ -88,12 +94,12 @@ export default function BookPage({ params }: { params: { id: string } }) {
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <Link
                 href={`/libros?category=${book.categorySlug}`}
-                className="text-xs font-semibold text-[#C8923A] bg-amber-50 px-3 py-1 rounded-full border border-amber-200 hover:bg-amber-100 transition-colors"
+                className="text-xs font-semibold text-[#F97316] bg-amber-50 px-3 py-1 rounded-full border border-amber-200 hover:bg-amber-100 transition-colors"
               >
                 {book.category}
               </Link>
               {book.bestseller && (
-                <span className="text-xs font-semibold text-white bg-[#C8923A] px-3 py-1 rounded-full">
+                <span className="text-xs font-semibold text-white bg-[#F97316] px-3 py-1 rounded-full">
                   Bestseller
                 </span>
               )}
@@ -164,7 +170,7 @@ export default function BookPage({ params }: { params: { id: string } }) {
                     ? 'bg-green-500 text-white'
                     : book.stock === 0
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-[#C8923A] hover:bg-[#A97626] text-white active:scale-95'
+                    : 'bg-[#F97316] hover:bg-[#C2570F] text-white active:scale-95'
                 }`}
               >
                 <ShoppingCart size={18} />
@@ -175,12 +181,12 @@ export default function BookPage({ params }: { params: { id: string } }) {
             {/* Guarantees */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl mb-6">
               {[
-                { icon: Truck, text: 'Envío en 24-48h', sub: 'Gratis desde €30' },
+                { icon: Truck, text: 'Envío en 24-48h', sub: 'Gratis desde RD$1,500' },
                 { icon: RotateCcw, text: 'Devolución', sub: '30 días gratis' },
                 { icon: Shield, text: 'Pago seguro', sub: 'SSL encriptado' },
               ].map((g) => (
                 <div key={g.text} className="flex flex-col items-center text-center gap-1">
-                  <g.icon size={18} className="text-[#C8923A]" />
+                  <g.icon size={18} className="text-[#F97316]" />
                   <span className="text-xs font-semibold text-gray-700">{g.text}</span>
                   <span className="text-[10px] text-gray-500">{g.sub}</span>
                 </div>
@@ -265,7 +271,7 @@ export default function BookPage({ params }: { params: { id: string } }) {
               </h2>
               <Link
                 href={`/libros?category=${book.categorySlug}`}
-                className="text-sm text-[#C8923A] font-medium hover:text-[#A97626] flex items-center gap-1 transition-colors"
+                className="text-sm text-[#F97316] font-medium hover:text-[#C2570F] flex items-center gap-1 transition-colors"
               >
                 Ver más <ChevronRight size={15} />
               </Link>

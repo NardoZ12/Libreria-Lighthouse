@@ -49,7 +49,7 @@ export default function ContactoPage() {
           <div style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} className="w-full h-full" />
         </div>
         <div className="relative max-w-2xl mx-auto">
-          <span className="inline-block bg-[#C8923A]/20 text-[#E8AC3A] text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-widest mb-4">
+          <span className="inline-block bg-[#F97316]/20 text-[#FB923C] text-xs font-semibold px-4 py-1.5 rounded-full uppercase tracking-widest mb-4">
             Hablemos
           </span>
           <h1 className="font-serif text-4xl font-bold text-white mb-3">Contáctanos</h1>
@@ -64,7 +64,7 @@ export default function ContactoPage() {
           {/* Form */}
           <div className="bg-white rounded-2xl shadow-sm p-6 lg:p-8">
             <h2 className="font-serif text-2xl font-bold text-[#0C1F3F] mb-6 flex items-center gap-2">
-              <MessageSquare size={20} className="text-[#C8923A]" />
+              <MessageSquare size={20} className="text-[#F97316]" />
               Envíanos un mensaje
             </h2>
 
@@ -79,7 +79,7 @@ export default function ContactoPage() {
                 </p>
                 <button
                   onClick={() => { setSent(false); setForm({ name: '', email: '', subject: '', message: '' }) }}
-                  className="mt-6 text-[#C8923A] font-medium hover:text-[#A97626] transition-colors"
+                  className="mt-6 text-[#F97316] font-medium hover:text-[#C2570F] transition-colors"
                 >
                   Enviar otro mensaje
                 </button>
@@ -95,7 +95,7 @@ export default function ContactoPage() {
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Tu nombre"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20 transition-colors"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20 transition-colors"
                     />
                   </div>
                   <div>
@@ -106,7 +106,7 @@ export default function ContactoPage() {
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="tu@email.com"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20 transition-colors"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20 transition-colors"
                     />
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export default function ContactoPage() {
                     required
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20 transition-colors text-gray-700"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20 transition-colors text-gray-700"
                   >
                     <option value="">Selecciona un asunto</option>
                     <option value="pedido">Consulta sobre un pedido</option>
@@ -136,14 +136,14 @@ export default function ContactoPage() {
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     placeholder="Escribe tu mensaje aquí..."
                     rows={5}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20 transition-colors resize-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20 transition-colors resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-[#C8923A] hover:bg-[#A97626] disabled:bg-gray-300 text-white py-3.5 rounded-xl font-semibold transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#C2570F] disabled:bg-gray-300 text-white py-3.5 rounded-xl font-semibold transition-colors"
                 >
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -163,7 +163,7 @@ export default function ContactoPage() {
             {contactInfo.map((item) => (
               <div key={item.title} className="bg-white rounded-2xl shadow-sm p-5 flex gap-4">
                 <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <item.icon size={20} className="text-[#C8923A]" />
+                  <item.icon size={20} className="text-[#F97316]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
@@ -184,13 +184,13 @@ export default function ContactoPage() {
                   }}
                 />
                 <div className="relative text-center">
-                  <MapPin size={32} className="text-[#C8923A] mx-auto mb-2" />
+                  <MapPin size={32} className="text-[#F97316] mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-700">Calle Mayor 42, Madrid</p>
                   <a
                     href="https://maps.google.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-[#C8923A] mt-1 block hover:underline"
+                    className="text-xs text-[#F97316] mt-1 block hover:underline"
                   >
                     Ver en Google Maps →
                   </a>

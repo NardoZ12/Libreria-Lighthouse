@@ -12,8 +12,8 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'form' | 'success'>('form')
   const [loading, setLoading] = useState(false)
 
-  const shippingFree = totalPrice >= 30
-  const shipping = shippingFree ? 0 : 3.99
+  const shippingFree = totalPrice >= 1500
+  const shipping = shippingFree ? 0 : 150
   const total = totalPrice + shipping
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +45,7 @@ export default function CheckoutPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/libros"
-              className="inline-flex items-center justify-center gap-2 bg-[#C8923A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A97626] transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-[#F97316] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#C2570F] transition-colors"
             >
               Seguir comprando
             </Link>
@@ -67,7 +67,7 @@ export default function CheckoutPage() {
         <div>
           <ShoppingBag size={48} className="text-gray-200 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">Tu carrito está vacío</p>
-          <Link href="/libros" className="text-[#C8923A] font-medium hover:text-[#A97626]">
+          <Link href="/libros" className="text-[#F97316] font-medium hover:text-[#C2570F]">
             Explorar catálogo →
           </Link>
         </div>
@@ -87,7 +87,7 @@ export default function CheckoutPage() {
             <span className="text-white">Pago</span>
           </nav>
           <h1 className="font-serif text-3xl font-bold text-white flex items-center gap-3">
-            <Lock size={22} className="text-[#C8923A]" />
+            <Lock size={22} className="text-[#F97316]" />
             Finalizar compra
           </h1>
         </div>
@@ -103,19 +103,19 @@ export default function CheckoutPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre</label>
-                  <input type="text" required placeholder="Tu nombre" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="Tu nombre" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Apellidos</label>
-                  <input type="text" required placeholder="Tus apellidos" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="Tus apellidos" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                  <input type="email" required placeholder="tu@email.com" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="email" required placeholder="tu@email.com" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
-                  <input type="tel" required placeholder="+34 612 345 678" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="tel" required placeholder="+34 612 345 678" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
               </div>
             </div>
@@ -126,19 +126,19 @@ export default function CheckoutPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Dirección</label>
-                  <input type="text" required placeholder="Calle y número" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="Calle y número" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Ciudad</label>
-                  <input type="text" required placeholder="Ciudad" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="Ciudad" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Código postal</label>
-                  <input type="text" required placeholder="28001" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="28001" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Provincia / Comunidad</label>
-                  <input type="text" required placeholder="Madrid" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="Madrid" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
               </div>
             </div>
@@ -146,21 +146,21 @@ export default function CheckoutPage() {
             {/* Payment */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h2 className="font-bold text-gray-900 mb-4 text-lg flex items-center gap-2">
-                <CreditCard size={18} className="text-[#C8923A]" />
+                <CreditCard size={18} className="text-[#F97316]" />
                 Método de pago
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Número de tarjeta</label>
-                  <input type="text" required placeholder="1234 5678 9012 3456" maxLength={19} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="1234 5678 9012 3456" maxLength={19} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Fecha de expiración</label>
-                  <input type="text" required placeholder="MM/AA" maxLength={5} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="MM/AA" maxLength={5} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">CVV</label>
-                  <input type="text" required placeholder="123" maxLength={4} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20" />
+                  <input type="text" required placeholder="123" maxLength={4} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20" />
                 </div>
               </div>
               <p className="text-xs text-gray-400 mt-3 flex items-center gap-1.5">
@@ -180,7 +180,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-[#C8923A] hover:bg-[#A97626] disabled:bg-gray-300 text-white px-8 py-3.5 rounded-xl font-bold text-base transition-colors"
+                className="flex items-center gap-2 bg-[#F97316] hover:bg-[#C2570F] disabled:bg-gray-300 text-white px-8 py-3.5 rounded-xl font-bold text-base transition-colors"
               >
                 {loading ? (
                   <>

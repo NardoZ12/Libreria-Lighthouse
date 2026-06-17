@@ -3,16 +3,24 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ShoppingCart, Menu, X, BookOpen, ChevronDown } from 'lucide-react'
+import { Search, ShoppingCart, Menu, X, BookOpen } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/libros', label: 'Catálogo' },
-  { href: '/libros?filter=novedades', label: 'Novedades' },
-  { href: '/libros?filter=ofertas', label: 'Ofertas' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/contacto', label: 'Contacto' },
+]
+
+const sectionLinks = [
+  { href: '#biblias', label: 'Biblias' },
+  { href: '#devocionales', label: 'Devocionales' },
+  { href: '#guerra-espiritual', label: 'Guerra Espiritual' },
+  { href: '#finanzas', label: 'Finanzas' },
+  { href: '#crecimiento-personal', label: 'Crecimiento Personal' },
+  { href: '#combos', label: 'Combos' },
+  { href: '#ofertas', label: 'Ofertas' },
 ]
 
 export default function Navbar() {
@@ -39,6 +47,11 @@ export default function Navbar() {
     }
   }
 
+  const sectionHref = (hash: string) => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/') return hash
+    return `/${hash}`
+  }
+
   return (
     <>
       <header
@@ -50,12 +63,12 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 bg-[#0C1F3F] rounded-lg flex items-center justify-center">
-                <BookOpen size={18} className="text-[#C8923A]" />
+              <div className="w-8 h-8 bg-navy rounded-lg flex items-center justify-center">
+                <BookOpen size={18} className="text-gold" />
               </div>
               <div className="leading-tight">
-                <span className="font-serif font-bold text-[#0C1F3F] text-lg leading-none">
-                  Light<span className="text-[#C8923A]">house</span>
+                <span className="font-serif font-bold text-navy text-lg leading-none">
+                  Light<span className="text-gold">house</span>
                 </span>
                 <span className="block text-[10px] text-gray-400 tracking-widest uppercase -mt-0.5">
                   Librería
@@ -64,15 +77,25 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-0.5 overflow-x-auto">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#C8923A] hover:bg-amber-50 rounded-lg transition-colors"
+                  className="px-2.5 py-2 text-sm font-medium text-gray-700 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
+              ))}
+              <span className="w-px h-5 bg-gray-200 mx-1" />
+              {sectionLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={sectionHref(link.href)}
+                  className="px-2.5 py-2 text-xs font-medium text-gray-500 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors whitespace-nowrap"
+                >
+                  {link.label}
+                </a>
               ))}
             </nav>
 
@@ -86,7 +109,7 @@ export default function Navbar() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar libros, autores..."
-                    className="border border-gray-200 rounded-lg px-4 py-2 text-sm w-56 focus:outline-none focus:border-[#C8923A] focus:ring-1 focus:ring-[#C8923A]/20"
+                    className="border border-gray-200 rounded-lg px-4 py-2 text-sm w-56 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20"
                     autoFocus
                   />
                   <button
@@ -100,7 +123,7 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2 text-gray-600 hover:text-[#C8923A] hover:bg-amber-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors"
                   aria-label="Buscar"
                 >
                   <Search size={20} />
@@ -110,12 +133,12 @@ export default function Navbar() {
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative p-2 text-gray-600 hover:text-[#C8923A] hover:bg-amber-50 rounded-lg transition-colors"
+                className="relative p-2 text-gray-600 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors"
                 aria-label="Carrito"
               >
                 <ShoppingCart size={20} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#C8923A] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
                 )}
@@ -124,7 +147,7 @@ export default function Navbar() {
               {/* Mobile menu toggle */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 text-gray-600 hover:text-[#0C1F3F] rounded-lg transition-colors ml-1"
+                className="lg:hidden p-2 text-gray-600 hover:text-navy rounded-lg transition-colors ml-1"
               >
                 {mobileOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -134,18 +157,18 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-1 shadow-lg">
+          <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto">
             <form onSubmit={handleSearch} className="flex gap-2 mb-3">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar libros, autores..."
-                className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#C8923A]"
+                className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
               />
               <button
                 type="submit"
-                className="bg-[#C8923A] text-white px-4 rounded-lg"
+                className="bg-gold text-white px-4 rounded-lg"
               >
                 <Search size={16} />
               </button>
@@ -155,10 +178,23 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#C8923A] hover:bg-amber-50 rounded-lg transition-colors"
+                className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors"
               >
                 {link.label}
               </Link>
+            ))}
+            <p className="px-4 pt-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+              Secciones
+            </p>
+            {sectionLinks.map((link) => (
+              <a
+                key={link.href}
+                href={sectionHref(link.href)}
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors"
+              >
+                {link.label}
+              </a>
             ))}
           </div>
         )}

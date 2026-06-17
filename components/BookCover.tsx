@@ -3,6 +3,7 @@ interface BookCoverProps {
   author: string
   coverColors: string[]
   category?: string
+  image?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
 }
@@ -19,9 +20,21 @@ export default function BookCover({
   author,
   coverColors,
   category,
+  image,
   size = 'md',
   className = '',
 }: BookCoverProps) {
+  if (image) {
+    return (
+      <div
+        className={`relative rounded-lg overflow-hidden flex-shrink-0 shadow-lg bg-gray-100 ${sizeClasses[size]} ${className}`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover" />
+      </div>
+    )
+  }
+
   const [c1, c2, c3] = coverColors
   const gradient = `linear-gradient(150deg, ${c1} 0%, ${c2} 55%, ${c3 ?? c2} 100%)`
 

@@ -1,5 +1,5 @@
 export function formatPrice(price: number): string {
-  return `€${price.toFixed(2)}`
+  return `RD$${Math.round(price).toLocaleString('es-DO')}`
 }
 
 export function cn(...classes: (string | undefined | false | null)[]): string {

@@ -3,9 +3,7 @@ import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/lib/auth-context'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import CartSidebar from '@/components/CartSidebar'
+import SiteChrome from '@/components/SiteChrome'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -35,10 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            <CartSidebar />
-            <main>{children}</main>
-            <Footer />
+            <SiteChrome>{children}</SiteChrome>
           </CartProvider>
         </AuthProvider>
       </body>

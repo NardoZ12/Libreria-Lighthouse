@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ShoppingCart, Menu, X, BookOpen } from 'lucide-react'
+import { Search, ShoppingCart, Menu, X, BookOpen, ChevronDown } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import AuthMenu from '@/components/AuthMenu'
 
@@ -14,23 +14,36 @@ const navLinks = [
   { href: '/contacto', label: 'Contacto' },
 ]
 
-const sectionLinks = [
+const categoryLinks = [
   { href: '#biblias', label: 'Biblias' },
   { href: '#devocionales', label: 'Devocionales' },
   { href: '#guerra-espiritual', label: 'Guerra Espiritual' },
   { href: '#finanzas', label: 'Finanzas' },
   { href: '#crecimiento-personal', label: 'Crecimiento Personal' },
-  { href: '#combos', label: 'Combos' },
   { href: '#ofertas', label: 'Ofertas' },
 ]
+
+const sectionLinks = [...categoryLinks, { href: '#combos', label: 'Combos' }]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
+  const categoriesRef = useRef<HTMLDivElement>(null)
   const { totalItems, openCart } = useCart()
   const router = useRouter()
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
+        setCategoriesOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -56,7 +69,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled ? 'bg-white shadow-md' : 'bg-white border-b border-gray-100'
         }`}
       >
@@ -89,15 +102,35 @@ export default function Navbar() {
                 </Link>
               ))}
               <span className="w-px h-5 bg-gray-200 mx-1" />
-              {sectionLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={sectionHref(link.href)}
-                  className="px-2.5 py-2 text-xs font-medium text-gray-500 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors whitespace-nowrap"
+              <div className="relative" ref={categoriesRef}>
+                <button
+                  onClick={() => setCategoriesOpen(!categoriesOpen)}
+                  className="flex items-center gap-1 px-2.5 py-2 text-xs font-medium text-gray-500 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors whitespace-nowrap"
                 >
-                  {link.label}
-                </a>
-              ))}
+                  Categorías
+                  <ChevronDown size={14} className={`transition-transform ${categoriesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {categoriesOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2">
+                    {categoryLinks.map((link) => (
+                      <a
+                        key={link.href}
+                        href={sectionHref(link.href)}
+                        onClick={() => setCategoriesOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-gold transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <a
+                href={sectionHref('#combos')}
+                className="px-2.5 py-2 text-xs font-medium text-gray-500 hover:text-gold hover:bg-orange-50 rounded-lg transition-colors whitespace-nowrap"
+              >
+                Combos
+              </a>
             </nav>
 
             {/* Actions */}

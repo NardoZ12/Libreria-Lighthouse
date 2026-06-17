@@ -120,62 +120,64 @@ export default function HomeHero({ featured }: { featured: Book[] }) {
 
           {/* Right: Book slider */}
           {slides.length > 0 && (
-            <div className="relative h-[420px] lg:h-[480px] flex items-center justify-center group">
+            <div className="relative h-[460px] lg:h-[520px] flex flex-col items-center group">
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
               </div>
 
-              {slides.length > 1 && (
-                <button
-                  onClick={() => goTo(index - 1)}
-                  aria-label="Anterior"
-                  className="absolute left-0 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+              <div className="relative flex-1 w-full flex items-center justify-center">
+                {slides.length > 1 && (
+                  <button
+                    onClick={() => goTo(index - 1)}
+                    aria-label="Anterior"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                )}
+
+                <Link
+                  key={slides[index].id}
+                  href={`/libros/${slides[index].id}`}
+                  className="relative h-full w-full max-w-[300px] flex flex-col items-center justify-center text-center animate-fade-in"
                 >
-                  <ChevronLeft size={18} />
-                </button>
-              )}
+                  <div className="w-full flex-1 flex items-center justify-center min-h-0">
+                    {slides[index].image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={slides[index].image}
+                        alt={slides[index].title}
+                        className="max-h-full max-w-full object-contain drop-shadow-2xl"
+                      />
+                    ) : (
+                      <BookCover
+                        title={slides[index].title}
+                        author={slides[index].author}
+                        coverColors={slides[index].coverColors}
+                        category={slides[index].category}
+                        size="xl"
+                      />
+                    )}
+                  </div>
+                  <p className="text-white font-semibold leading-snug mt-4 line-clamp-2 flex-shrink-0">
+                    {slides[index].title}
+                  </p>
+                  <p className="text-blue-200/60 text-sm mt-1 flex-shrink-0">{slides[index].author}</p>
+                </Link>
 
-              <Link
-                key={slides[index].id}
-                href={`/libros/${slides[index].id}`}
-                className="relative w-full max-w-[300px] h-full flex flex-col items-center text-center animate-fade-in"
-              >
-                <div className="w-full flex-1 flex items-center justify-center">
-                  {slides[index].image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={slides[index].image}
-                      alt={slides[index].title}
-                      className="max-h-full max-w-full object-contain drop-shadow-2xl"
-                    />
-                  ) : (
-                    <BookCover
-                      title={slides[index].title}
-                      author={slides[index].author}
-                      coverColors={slides[index].coverColors}
-                      category={slides[index].category}
-                      size="xl"
-                    />
-                  )}
-                </div>
-                <p className="text-white font-semibold leading-snug mt-4 line-clamp-2">
-                  {slides[index].title}
-                </p>
-                <p className="text-blue-200/60 text-sm mt-1">{slides[index].author}</p>
-              </Link>
-
-              {slides.length > 1 && (
-                <button
-                  onClick={() => goTo(index + 1)}
-                  aria-label="Siguiente"
-                  className="absolute right-0 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              )}
+                {slides.length > 1 && (
+                  <button
+                    onClick={() => goTo(index + 1)}
+                    aria-label="Siguiente"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                )}
+              </div>
 
               {slides.length > 1 && (
-                <div className="absolute bottom-0 flex gap-1.5">
+                <div className="flex gap-1.5 mt-5 flex-shrink-0">
                   {slides.map((book, i) => (
                     <button
                       key={book.id}

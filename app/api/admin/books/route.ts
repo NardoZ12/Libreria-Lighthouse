@@ -13,7 +13,7 @@ export async function GET() {
 
   try {
     const books = await getAllBooks()
-    return NextResponse.json({ books })
+    return NextResponse.json({ books }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('GET /api/admin/books failed', error)
     return NextResponse.json({ error: 'Error al cargar los libros.' }, { status: 500 })

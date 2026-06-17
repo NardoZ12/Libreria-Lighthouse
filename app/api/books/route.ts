@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       books = await getAllBooks()
     }
 
-    return NextResponse.json({ books })
+    return NextResponse.json({ books }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('GET /api/books failed', error)
     return NextResponse.json({ error: 'Failed to load books' }, { status: 500 })

@@ -19,7 +19,7 @@ export default function AdminBooksTable({ initialBooks }: AdminBooksTableProps) 
 
   const refreshBooks = async () => {
     try {
-      const res = await fetch('/api/admin/books')
+      const res = await fetch('/api/admin/books', { cache: 'no-store' })
       if (!res.ok) return
       const data = await res.json()
       setBooks(data.books ?? [])

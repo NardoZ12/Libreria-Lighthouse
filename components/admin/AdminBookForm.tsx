@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { X } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { X, Upload, Loader2 } from 'lucide-react'
 import type { Book, CategorySlug } from '@/lib/books-types'
 import { categories } from '@/lib/categories'
 
@@ -82,11 +82,39 @@ export default function AdminBookForm({ book, onClose, onSaved }: AdminBookFormP
   const [values, setValues] = useState<BookFormValues>(book ? bookToForm(book) : emptyForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const showSubcategory = values.category === 'biblias' || values.category === 'devocionales'
 
   const update = <K extends keyof BookFormValues>(key: K, value: BookFormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setError('')
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        setError(data.error ?? 'No se pudo subir la imagen.')
+        return
+      }
+
+      update('image', data.url)
+    } catch {
+      setError('No se pudo subir la imagen. Intenta de nuevo.')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -216,14 +244,40 @@ export default function AdminBookForm({ book, onClose, onSaved }: AdminBookFormP
               />
             </div>
 
-            <div>
-              <label className="text-xs font-semibold text-gray-500">Imagen (URL)</label>
-              <input
-                value={values.image}
-                onChange={(e) => update('image', e.target.value)}
-                placeholder="https://..."
-                className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold"
-              />
+            <div className="col-span-2">
+              <label className="text-xs font-semibold text-gray-500">Foto del libro</label>
+              <div className="flex items-start gap-3 mt-1">
+                {values.image && (
+                  <img
+                    src={values.image}
+                    alt="Vista previa"
+                    className="w-16 h-20 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                  />
+                )}
+                <div className="flex-1 space-y-2">
+                  <input
+                    value={values.image}
+                    onChange={(e) => update('image', e.target.value)}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold"
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="book-photo-upload"
+                  />
+                  <label
+                    htmlFor="book-photo-upload"
+                    className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                    {uploading ? 'Subiendo...' : 'Subir foto desde mi dispositivo'}
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="col-span-2">
@@ -340,7 +394,7 @@ export default function AdminBookForm({ book, onClose, onSaved }: AdminBookFormP
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || uploading}
               className="px-5 py-2.5 bg-[#F97316] hover:bg-[#C2570F] text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-60"
             >
               {submitting ? 'Guardando...' : 'Guardar'}

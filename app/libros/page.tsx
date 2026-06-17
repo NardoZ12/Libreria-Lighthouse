@@ -46,7 +46,7 @@ function CatalogoContent() {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetch('/api/books')
+    fetch('/api/books', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setAllBooks(data.books ?? [])

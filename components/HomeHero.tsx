@@ -12,7 +12,7 @@ const AUTOPLAY_MS = 4000
 export default function HomeHero({ featured }: { featured: Book[] }) {
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
-  const slides = featured.slice(0, 8)
+  const slides = featured
   const [index, setIndex] = useState(0)
 
   useEffect(() => {

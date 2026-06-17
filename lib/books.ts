@@ -166,7 +166,11 @@ export async function getBookById(id: string): Promise<Book | undefined> {
 
 export async function getFeaturedBooks(): Promise<Book[]> {
   const supabase = getSupabaseServerClient()
-  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('featured', true)
+  const { data, error } = await supabase
+    .from('books')
+    .select(BOOK_COLUMNS)
+    .eq('featured', true)
+    .order('updated_at', { ascending: false })
   if (error) throw error
   return (data as BookRow[]).map(mapBookRow)
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/context/CartContext'
+import { AuthProvider } from '@/lib/auth-context'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CartSidebar from '@/components/CartSidebar'
@@ -32,12 +33,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${playfair.variable} ${inter.variable}`}>
       <body>
-        <CartProvider>
-          <Navbar />
-          <CartSidebar />
-          <main>{children}</main>
-          <Footer />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Navbar />
+            <CartSidebar />
+            <main>{children}</main>
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,11 +1,6 @@
-'use client'
-
-import { useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
-  Search, ArrowRight, Truck, RotateCcw, Shield, Headphones,
-  BookMarked, Star, Sparkles, Tag,
+  Truck, RotateCcw, Shield, Headphones,
+  Star, Sparkles, Tag,
 } from 'lucide-react'
 import {
   getFeaturedBooks,
@@ -13,11 +8,16 @@ import {
   getBooksByCategory,
   getCombos,
   getOfertas,
+  getComboBooks,
+  type Book,
 } from '@/lib/books'
 import BookCard from '@/components/BookCard'
 import ComboCard from '@/components/ComboCard'
-import BookCover from '@/components/BookCover'
 import Carousel from '@/components/Carousel'
+import HomeHero from '@/components/HomeHero'
+import Newsletter from '@/components/Newsletter'
+
+export const dynamic = 'force-dynamic'
 
 const testimonials = [
   {
@@ -43,7 +43,7 @@ const testimonials = [
   },
 ]
 
-function BookCarouselItem({ book }: { book: ReturnType<typeof getFeaturedBooks>[number] }) {
+function BookCarouselItem({ book }: { book: Book }) {
   return (
     <div data-carousel-item className="carousel-item flex-shrink-0 w-[170px] sm:w-[200px]">
       <BookCard book={book} />
@@ -51,160 +51,31 @@ function BookCarouselItem({ book }: { book: ReturnType<typeof getFeaturedBooks>[
   )
 }
 
-export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
-  const router = useRouter()
+export default async function HomePage() {
+  const featured = await getFeaturedBooks()
+  const combos = await getCombos()
+  const ofertas = await getOfertas()
+  const comboBooksMap = new Map(
+    await Promise.all(combos.map(async (combo) => [combo.id, await getComboBooks(combo)] as const))
+  )
 
-  const featured = getFeaturedBooks()
-  const combos = getCombos()
-  const ofertas = getOfertas()
+  const bibliasDamas = await getBooksBySubcategory('biblias', 'damas')
+  const bibliasVarones = await getBooksBySubcategory('biblias', 'varones')
+  const bibliasJuveniles = await getBooksBySubcategory('biblias', 'juveniles')
+  const bibliasInfantiles = await getBooksBySubcategory('biblias', 'infantiles')
+  const bibliasPastorales = await getBooksBySubcategory('biblias', 'pastorales')
+  const bibliasEstudio = await getBooksBySubcategory('biblias', 'estudio')
 
-  const bibliasDamas = getBooksBySubcategory('biblias', 'damas')
-  const bibliasVarones = getBooksBySubcategory('biblias', 'varones')
-  const bibliasJuveniles = getBooksBySubcategory('biblias', 'juveniles')
-  const bibliasInfantiles = getBooksBySubcategory('biblias', 'infantiles')
-  const bibliasPastorales = getBooksBySubcategory('biblias', 'pastorales')
-  const bibliasEstudio = getBooksBySubcategory('biblias', 'estudio')
+  const devocionalesDamas = await getBooksBySubcategory('devocionales', 'damas')
+  const devocionalesVarones = await getBooksBySubcategory('devocionales', 'varones')
 
-  const devocionalesDamas = getBooksBySubcategory('devocionales', 'damas')
-  const devocionalesVarones = getBooksBySubcategory('devocionales', 'varones')
-
-  const guerraEspiritual = getBooksByCategory('guerra-espiritual')
-  const finanzas = getBooksByCategory('finanzas')
-  const crecimientoPersonal = getBooksByCategory('crecimiento-personal')
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/libros?q=${encodeURIComponent(searchQuery.trim())}`)
-    }
-  }
-
-  const handleNewsletter = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubscribed(true)
-  }
+  const guerraEspiritual = await getBooksByCategory('guerra-espiritual')
+  const finanzas = await getBooksByCategory('finanzas')
+  const crecimientoPersonal = await getBooksByCategory('crecimiento-personal')
 
   return (
     <>
-      {/* ── HERO ── */}
-      <section className="relative bg-[#0C1F3F] overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-800/20 rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
-              backgroundSize: '40px 40px',
-            }}
-          />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left */}
-            <div>
-              <span className="inline-flex items-center gap-2 bg-gold/20 text-gold-light text-xs font-semibold px-3 py-1.5 rounded-full mb-5 uppercase tracking-widest">
-                <BookMarked size={12} />
-                Tu librería cristiana en República Dominicana
-              </span>
-              <h1 className="font-serif text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
-                Libros que{' '}
-                <span className="text-gold">alimentan</span>{' '}
-                el alma
-              </h1>
-              <p className="text-blue-100/70 text-lg leading-relaxed mb-4">
-                Biblias, devocionales, guerra espiritual, finanzas bíblicas y crecimiento personal para cada etapa de tu camino de fe. Más de 5.000 títulos disponibles.
-              </p>
-              <p className="text-gold-light/80 text-sm italic mb-8">
-                «Tu palabra es lámpara a mis pies; es luz en mi sendero.» — Salmo 119:105
-              </p>
-
-              <form onSubmit={handleSearch} className="flex gap-2 mb-8 max-w-md">
-                <div className="flex-1 relative">
-                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar Biblias, devocionales, autores..."
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30 placeholder-gray-400"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-gold hover:bg-gold-dark text-white px-5 rounded-xl font-medium transition-colors flex-shrink-0"
-                >
-                  Buscar
-                </button>
-              </form>
-
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/#biblias"
-                  className="inline-flex items-center gap-2 bg-white text-[#0C1F3F] px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
-                >
-                  Ver Biblias
-                  <ArrowRight size={16} />
-                </Link>
-                <Link
-                  href="/libros"
-                  className="inline-flex items-center gap-2 border-2 border-white/25 text-white px-6 py-3 rounded-xl font-semibold hover:border-white/50 hover:bg-white/5 transition-colors"
-                >
-                  Catálogo completo
-                </Link>
-              </div>
-
-              {/* Mini stats */}
-              <div className="grid grid-cols-3 gap-4 mt-12 pt-10 border-t border-white/10">
-                {[
-                  { value: '5.000+', label: 'Títulos' },
-                  { value: '20.000+', label: 'Familias servidas' },
-                  { value: '5 años', label: 'Sirviendo' },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="text-2xl font-bold text-white font-serif">{stat.value}</div>
-                    <div className="text-sm text-blue-200/60">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Book showcase */}
-            <div className="hidden lg:flex justify-center items-center relative h-[420px]">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
-              </div>
-              {featured.slice(0, 3).map((book, i) => {
-                const transforms = [
-                  'rotate-[-8deg] translate-x-[-50px] translate-y-[20px] scale-[0.88] opacity-80',
-                  'rotate-[4deg] translate-x-[30px] translate-y-[-10px] scale-[0.94] opacity-90',
-                  'rotate-[-2deg] translate-x-[-10px] translate-y-[0px] scale-[1]',
-                ]
-                const zIndexes = ['z-10', 'z-20', 'z-30']
-                return (
-                  <div
-                    key={book.id}
-                    className={`absolute transform ${transforms[i]} ${zIndexes[i]} transition-all duration-300`}
-                  >
-                    <BookCover
-                      title={book.title}
-                      author={book.author}
-                      coverColors={book.coverColors}
-                      category={book.category}
-                      image={book.image}
-                      size="xl"
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeHero featured={featured} />
 
       {/* ── PROMO STRIP ── */}
       <div className="bg-gold text-white">
@@ -322,7 +193,7 @@ export default function HomePage() {
           </div>
           <div className="flex gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide justify-center flex-wrap">
             {combos.map((combo) => (
-              <ComboCard key={combo.id} combo={combo} />
+              <ComboCard key={combo.id} combo={combo} books={comboBooksMap.get(combo.id) ?? []} />
             ))}
           </div>
         </div>
@@ -406,36 +277,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── NEWSLETTER ── */}
-      <section className="py-16 bg-[#0C1F3F]">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">Únete a nuestra comunidad</p>
-          <h2 className="font-serif text-3xl font-bold text-white mb-3">Suscríbete al boletín</h2>
-          <p className="text-blue-200/60 mb-8">
-            Recibe novedades literarias, reflexiones bíblicas, ofertas exclusivas y recomendaciones de lectura cada semana.
-          </p>
-          {subscribed ? (
-            <div className="bg-green-500/20 border border-green-400/30 text-green-300 rounded-xl px-6 py-4 font-medium">
-              ¡Gracias por suscribirte! Que Dios bendiga tu lectura.
-            </div>
-          ) : (
-            <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                required
-                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-gold text-sm"
-              />
-              <button type="submit" className="bg-gold hover:bg-gold-dark text-white px-6 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap">
-                Suscribirme
-              </button>
-            </form>
-          )}
-          <p className="text-blue-200/40 text-xs mt-4">Sin spam. Cancela cuando quieras.</p>
-        </div>
-      </section>
+      <Newsletter />
     </>
   )
 }

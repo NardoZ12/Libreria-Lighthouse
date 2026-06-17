@@ -1,1441 +1,236 @@
-export type CategorySlug =
-  | 'biblias'
-  | 'devocionales'
-  | 'guerra-espiritual'
-  | 'finanzas'
-  | 'crecimiento-personal'
-  | 'combos'
-  | 'ofertas'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
+import type { Book, Combo, CategorySlug, Subcategory } from '@/lib/books-types'
 
-export type BibliaSubcategory = 'damas' | 'varones' | 'juveniles' | 'infantiles' | 'pastorales' | 'estudio'
-export type DevocionalSubcategory = 'damas' | 'varones'
-export type Subcategory = BibliaSubcategory | DevocionalSubcategory
+export type {
+  CategorySlug,
+  BibliaSubcategory,
+  DevocionalSubcategory,
+  Subcategory,
+  Book,
+  Combo,
+} from '@/lib/books-types'
+export type { Category } from '@/lib/categories'
+export { categories } from '@/lib/categories'
 
-export interface Book {
+const CATEGORY_LABELS: Record<string, string> = {
+  biblias: 'Biblias',
+  devocionales: 'Devocionales',
+  'guerra-espiritual': 'Guerra Espiritual',
+  finanzas: 'Finanzas',
+  'crecimiento-personal': 'Crecimiento Personal',
+  combos: 'Combos',
+  ofertas: 'Ofertas',
+}
+
+const COLOR_PALETTES: string[][] = [
+  ['#0C1F3F', '#1e3a5f', '#3b82f6'],
+  ['#7f1d1d', '#b91c1c', '#fca5a5'],
+  ['#581c87', '#7e22ce', '#c084fc'],
+  ['#14532d', '#15803d', '#4ade80'],
+  ['#78350f', '#b45309', '#fbbf24'],
+  ['#1e1b4b', '#312e81', '#818cf8'],
+  ['#831843', '#be185d', '#f472b6'],
+  ['#042f2e', '#0f766e', '#2dd4bf'],
+]
+
+/** Deterministically derive a gradient palette from a slug so cards without an image still look distinct. */
+function colorsForSlug(slug: string): string[] {
+  let hash = 0
+  for (let i = 0; i < slug.length; i++) {
+    hash = (hash * 31 + slug.charCodeAt(i)) >>> 0
+  }
+  return COLOR_PALETTES[hash % COLOR_PALETTES.length]
+}
+
+// Raw DB row shapes (snake_case)
+interface BookRow {
   id: string
+  slug: string
   title: string
   author: string
-  price: number
-  originalPrice?: number
-  /** Human-readable category label, kept for breadcrumbs/badges */
   category: string
-  /** Machine taxonomy slug used for filtering */
-  categorySlug: CategorySlug
-  /** Optional subcategory, used for Biblias and Devocionales subsections */
-  subcategory?: Subcategory
-  /** Bible translation/version, e.g. "Reina Valera 1960", "NVI", "NTV" */
-  version?: string
-  /** Optional real product photo URL/path. Falls back to BookCover gradient when absent. */
-  image?: string
-  rating: number
-  reviewCount: number
-  description: string
-  longDescription: string
-  coverColors: string[]
-  stock: number
-  isbn: string
-  publisher: string
-  year: number
-  pages: number
-  language: string
-  featured?: boolean
-  newArrival?: boolean
-  bestseller?: boolean
-  tags: string[]
-}
-
-export interface Category {
-  slug: CategorySlug
-  name: string
-  description: string
-  color: string
-  lightColor: string
-  count: number
-}
-
-export interface Combo {
-  id: string
-  title: string
-  slug: string
-  /** Ids of the books included, used to compute savings/look up summaries */
-  bookIds: string[]
+  subcategory: string | null
+  version: string | null
+  description: string | null
   price: number
-  originalPrice: number
-  image?: string
-  /** Fallback gradient colors when no image is provided */
-  coverColors?: string[]
-  description: string
+  original_price: number | null
+  stock: number
+  image: string | null
+  rating: number | null
+  reviews_count: number | null
+  pages: number | null
+  language: string | null
+  isbn: string | null
+  publisher: string | null
+  featured: boolean | null
+  bestseller: boolean | null
+  new_arrival: boolean | null
+  created_at?: string
+  updated_at?: string
 }
 
-export const categories: Category[] = [
-  { slug: 'biblias', name: 'Biblias', description: 'Todas las versiones y ediciones', color: '#dc2626', lightColor: '#fee2e2', count: 0 },
-  { slug: 'devocionales', name: 'Devocionales', description: 'Reflexiones diarias para tu fe', color: '#f97316', lightColor: '#ffedd5', count: 0 },
-  { slug: 'guerra-espiritual', name: 'Guerra Espiritual', description: 'Armas espirituales para la batalla diaria', color: '#7c3aed', lightColor: '#ede9fe', count: 0 },
-  { slug: 'finanzas', name: 'Finanzas', description: 'Sabiduría bíblica para tus finanzas', color: '#059669', lightColor: '#dcfce7', count: 0 },
-  { slug: 'crecimiento-personal', name: 'Crecimiento Personal', description: 'Transforma tu vida con la Palabra', color: '#0891b2', lightColor: '#e0f2fe', count: 0 },
-  { slug: 'combos', name: 'Combos', description: 'Paquetes especiales con grandes ahorros', color: '#0C1F3F', lightColor: '#e8edf5', count: 0 },
-  { slug: 'ofertas', name: 'Ofertas', description: 'Descuentos por tiempo limitado', color: '#ea580c', lightColor: '#ffedd5', count: 0 },
-]
-
-const books: Book[] = [
-  // ══════════════ BIBLIAS ══════════════
-
-  // ── Biblias > Damas ──
-  {
-    id: 'biblia-damas-rvr60-floral',
-    title: 'Biblia de la Mujer Floral – RVR1960',
-    author: 'Sociedad Bíblica',
-    price: 1450,
-    originalPrice: 1750,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'damas',
-    version: 'Reina Valera 1960',
-    rating: 4.9,
-    reviewCount: 342,
-    description: 'Edición especial para la mujer cristiana, con cubierta floral y estudios temáticos sobre identidad, propósito y fe.',
-    longDescription: 'Esta hermosa Biblia incluye estudios temáticos pensados para la mujer de hoy: identidad en Cristo, maternidad, propósito y sabiduría. Cubierta floral en símil piel, papel biblia de alta calidad y letra cómoda para la lectura diaria.',
-    coverColors: ['#831843', '#be185d', '#f472b6'],
-    stock: 24,
-    isbn: '978-0829703001',
-    publisher: 'Sociedades Bíblicas Unidas',
-    year: 2019,
-    pages: 1408,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['biblia', 'mujer', 'damas', 'RVR1960'],
-  },
-  {
-    id: 'biblia-mujer-conforme-corazon-dios',
-    title: 'Biblia Mujer Conforme al Corazón de Dios – NVI',
-    author: 'Elizabeth George',
-    price: 1690,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'damas',
-    version: 'NVI',
-    rating: 4.8,
-    reviewCount: 256,
-    description: 'Notas devocionales de Elizabeth George en cada libro bíblico, diseñadas para guiar a la mujer hacia el corazón de Dios.',
-    longDescription: 'Basada en el ministerio de Elizabeth George, esta Biblia incluye introducciones, notas devocionales y planes de lectura que ayudan a la mujer a aplicar la Palabra en cada área de su vida: familia, trabajo, relaciones y vida espiritual.',
-    coverColors: ['#6b21a8', '#9333ea', '#d8b4fe'],
-    stock: 18,
-    isbn: '978-0829703002',
-    publisher: 'Editorial Vida',
-    year: 2017,
-    pages: 1520,
-    language: 'Español',
-    tags: ['biblia', 'mujer', 'damas', 'NVI', 'devocional'],
-  },
-  {
-    id: 'biblia-mujer-valiente',
-    title: 'Biblia de la Mujer Valiente – RVR1960',
-    author: 'Editorial Unilit',
-    price: 1390,
-    originalPrice: 1590,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'damas',
-    version: 'Reina Valera 1960',
-    rating: 4.7,
-    reviewCount: 198,
-    description: 'Para la mujer que enfrenta sus batallas con fe. Incluye perfiles de mujeres bíblicas valientes y reflexiones de aliento.',
-    longDescription: 'Inspirada en las mujeres valientes de la Escritura —Débora, Ester, Rut— esta Biblia ofrece perfiles bíblicos, reflexiones de aliento y espacio para notas personales. Cubierta resistente en símil piel color vino.',
-    coverColors: ['#7f1d1d', '#b91c1c', '#fca5a5'],
-    stock: 20,
-    isbn: '978-0829703003',
-    publisher: 'Editorial Unilit',
-    year: 2021,
-    pages: 1392,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'mujer', 'damas', 'valentía'],
-  },
-  {
-    id: 'biblia-devocional-mujer-ntv',
-    title: 'Biblia Devocional de la Mujer – NTV',
-    author: 'Tyndale',
-    price: 1590,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'damas',
-    version: 'NTV',
-    rating: 4.8,
-    reviewCount: 167,
-    description: 'Texto en Nueva Traducción Viviente con devocionales semanales y guías de oración para la mujer.',
-    longDescription: 'Combina el texto claro y contemporáneo de la NTV con devocionales semanales, guías de oración y espacios para diario personal. Ideal para el tiempo devocional diario de la mujer ocupada.',
-    coverColors: ['#0c4a6e', '#0369a1', '#7dd3fc'],
-    stock: 15,
-    isbn: '978-0829703004',
-    publisher: 'Tyndale House',
-    year: 2020,
-    pages: 1456,
-    language: 'Español',
-    tags: ['biblia', 'mujer', 'damas', 'NTV', 'devocional'],
-  },
-
-  // ── Biblias > Varones ──
-  {
-    id: 'biblia-hombre-guerrero-rvr60',
-    title: 'Biblia del Hombre Guerrero – RVR1960',
-    author: 'Editorial Portavoz',
-    price: 1490,
-    originalPrice: 1790,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'varones',
-    version: 'Reina Valera 1960',
-    rating: 4.8,
-    reviewCount: 284,
-    description: 'Para el hombre que quiere vivir con propósito, integridad y valentía. Notas sobre liderazgo y carácter cristiano.',
-    longDescription: 'Diseñada para el hombre de fe, incluye notas sobre liderazgo bíblico, integridad, paternidad y vida devocional. Cubierta en símil piel color marrón oscuro con acabado resistente.',
-    coverColors: ['#1c1917', '#44403c', '#78716c'],
-    stock: 22,
-    isbn: '978-0829703010',
-    publisher: 'Editorial Portavoz',
-    year: 2018,
-    pages: 1408,
-    language: 'Español',
-    bestseller: true,
-    tags: ['biblia', 'hombre', 'varones', 'liderazgo'],
-  },
-  {
-    id: 'biblia-hombre-integridad-nvi',
-    title: 'Biblia del Hombre de Integridad – NVI',
-    author: 'Biblica',
-    price: 1690,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'varones',
-    version: 'NVI',
-    rating: 4.7,
-    reviewCount: 152,
-    description: 'Estudios prácticos sobre carácter, trabajo y familia para el hombre que busca honrar a Dios en cada área.',
-    longDescription: 'Incluye más de 250 notas de estudio sobre integridad, ética laboral, paternidad y matrimonio desde una perspectiva bíblica. Texto NVI en letra cómoda con referencias cruzadas.',
-    coverColors: ['#1e293b', '#334155', '#64748b'],
-    stock: 16,
-    isbn: '978-0829703011',
-    publisher: 'Editorial Vida',
-    year: 2019,
-    pages: 1536,
-    language: 'Español',
-    tags: ['biblia', 'hombre', 'varones', 'NVI', 'integridad'],
-  },
-  {
-    id: 'biblia-camuflaje-varon',
-    title: 'Santa Biblia Edición Camuflaje – RVR1960',
-    author: 'Sociedad Bíblica',
-    price: 1290,
-    originalPrice: 1490,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'varones',
-    version: 'Reina Valera 1960',
-    rating: 4.6,
-    reviewCount: 121,
-    description: 'Edición robusta con cubierta camuflaje, ideal para el hombre activo, militares y amantes del aire libre.',
-    longDescription: 'Cubierta resistente en patrón camuflaje, tamaño compacto para llevar a todas partes. Texto RVR1960 completo con mapas bíblicos. Popular entre militares, cazadores y hombres de vida activa.',
-    coverColors: ['#3f3f1f', '#52521f', '#84843a'],
-    stock: 26,
-    isbn: '978-0829703012',
-    publisher: 'Sociedades Bíblicas Unidas',
-    year: 2016,
-    pages: 1280,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'hombre', 'varones', 'camuflaje', 'compacta'],
-  },
-  {
-    id: 'biblia-hombre-segun-corazon-dios',
-    title: 'Biblia Hombre Conforme al Corazón de Dios – RVR1960',
-    author: 'Jim George',
-    price: 1550,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'varones',
-    version: 'Reina Valera 1960',
-    rating: 4.8,
-    reviewCount: 143,
-    description: 'Notas devocionales de Jim George para ayudar al hombre a crecer en su relación con Dios, su familia y su trabajo.',
-    longDescription: 'Compañera del bestseller "Un hombre conforme al corazón de Dios", esta Biblia ofrece notas prácticas para la vida diaria del hombre cristiano: liderazgo en el hogar, disciplina espiritual y vida de oración.',
-    coverColors: ['#0c1f3f', '#1e3a5f', '#3b82f6'],
-    stock: 14,
-    isbn: '978-0829703013',
-    publisher: 'Editorial Portavoz',
-    year: 2015,
-    pages: 1392,
-    language: 'Español',
-    tags: ['biblia', 'hombre', 'varones', 'devocional'],
-  },
-
-  // ── Biblias > Juveniles ──
-  {
-    id: 'biblia-joven-vida-real-ntv',
-    title: 'Biblia Joven Vida Real – NTV',
-    author: 'Tyndale',
-    price: 1290,
-    originalPrice: 1490,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'juveniles',
-    version: 'NTV',
-    rating: 4.8,
-    reviewCount: 312,
-    description: 'Diseñada para adolescentes y jóvenes, con un lenguaje fresco y secciones sobre identidad, amistad y propósito.',
-    longDescription: 'Pensada para jóvenes de 13 a 19 años, incluye artículos sobre temas relevantes: identidad, redes sociales, amistad, noviazgo y propósito de vida. Diseño moderno y texto en NTV de fácil comprensión.',
-    coverColors: ['#9333ea', '#a855f7', '#e9d5ff'],
-    stock: 28,
-    isbn: '978-0829703020',
-    publisher: 'Tyndale House',
-    year: 2020,
-    pages: 1344,
-    language: 'Español',
-    bestseller: true,
-    tags: ['biblia', 'joven', 'juvenil', 'NTV'],
-  },
-  {
-    id: 'biblia-teen-devocional-nvi',
-    title: 'Biblia Devocional para Adolescentes – NVI',
-    author: 'Editorial Vida',
-    price: 1390,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'juveniles',
-    version: 'NVI',
-    rating: 4.7,
-    reviewCount: 189,
-    description: 'Devocionales cortos y preguntas de reflexión diseñadas para acompañar a los adolescentes en su caminar de fe.',
-    longDescription: 'Incluye 365 devocionales breves, preguntas de reflexión y testimonios de jóvenes cristianos. Diseño juvenil y colorido que hace la lectura bíblica atractiva para esta etapa de la vida.',
-    coverColors: ['#0e7490', '#06b6d4', '#a5f3fc'],
-    stock: 20,
-    isbn: '978-0829703021',
-    publisher: 'Editorial Vida',
-    year: 2019,
-    pages: 1408,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'joven', 'juvenil', 'NVI', 'devocional'],
-  },
-  {
-    id: 'biblia-juvenil-impacto',
-    title: 'Biblia de Impacto Juvenil – RVR1960',
-    author: 'Sociedad Bíblica',
-    price: 1190,
-    originalPrice: 1390,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'juveniles',
-    version: 'Reina Valera 1960',
-    rating: 4.6,
-    reviewCount: 134,
-    description: 'Edición económica y resistente para grupos juveniles, campamentos y retiros.',
-    longDescription: 'Edición pensada para grupos de jóvenes, campamentos y retiros cristianos. Cubierta resistente al uso intensivo, precio accesible para comprar en cantidad para tu ministerio juvenil.',
-    coverColors: ['#166534', '#16a34a', '#86efac'],
-    stock: 35,
-    isbn: '978-0829703022',
-    publisher: 'Sociedades Bíblicas Unidas',
-    year: 2018,
-    pages: 1248,
-    language: 'Español',
-    tags: ['biblia', 'joven', 'juvenil', 'grupos', 'campamento'],
-  },
-  {
-    id: 'biblia-juvenil-identidad-ntv',
-    title: 'Biblia Identidad en Cristo – NTV',
-    author: 'Tyndale',
-    price: 1450,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'juveniles',
-    version: 'NTV',
-    rating: 4.8,
-    reviewCount: 98,
-    description: 'Ayuda a los jóvenes a entender quiénes son en Cristo en medio de la presión social y las redes sociales.',
-    longDescription: 'Con artículos sobre identidad, autoestima bíblica y cómo navegar la presión de las redes sociales y la cultura juvenil desde una perspectiva cristiana firme y esperanzadora.',
-    coverColors: ['#be185d', '#ec4899', '#fbcfe8'],
-    stock: 18,
-    isbn: '978-0829703023',
-    publisher: 'Tyndale House',
-    year: 2021,
-    pages: 1376,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'joven', 'juvenil', 'identidad'],
-  },
-
-  // ── Biblias > Infantiles ──
-  {
-    id: 'mi-primera-biblia-ilustrada',
-    title: 'Mi Primera Biblia Ilustrada',
-    author: 'Varios Autores',
-    price: 850,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'infantiles',
-    version: 'Adaptación infantil',
-    rating: 4.9,
-    reviewCount: 456,
-    description: 'Las grandes historias de la Biblia narradas y adaptadas para los más pequeños, con ilustraciones vibrantes.',
-    longDescription: 'Esta hermosa Biblia para niños presenta más de 80 historias bíblicas adaptadas para niños de 3 a 8 años, con ilustraciones a todo color y una oración al final de cada historia.',
-    coverColors: ['#7c2d12', '#c2410c', '#fb923c'],
-    stock: 40,
-    isbn: '978-0829736595',
-    publisher: 'Editorial Vida',
-    year: 2008,
-    pages: 256,
-    language: 'Español',
-    bestseller: true,
-    tags: ['infantil', 'biblia', 'niños', 'ilustrada'],
-  },
-  {
-    id: 'biblia-historias-jesus-storybook',
-    title: 'Biblia de Historias de Jesús',
-    author: 'Sally Lloyd-Jones',
-    price: 990,
-    originalPrice: 1190,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'infantiles',
-    version: 'Adaptación infantil',
-    rating: 4.9,
-    reviewCount: 521,
-    description: 'Cada historia susurra el nombre de Jesús. Un tesoro para toda la familia con ilustraciones encantadoras.',
-    longDescription: 'Con un texto poético y profundo, esta Biblia narra las grandes historias de la Escritura mostrando cómo todas apuntan a la salvación en Jesús. Leída con igual emoción por niños y adultos.',
-    coverColors: ['#3b0764', '#7e22ce', '#c084fc'],
-    stock: 30,
-    isbn: '978-0310715252',
-    publisher: 'Zonderkidz',
-    year: 2007,
-    pages: 352,
-    language: 'Español',
-    featured: true,
-    tags: ['infantil', 'biblia', 'Jesús', 'familia'],
-  },
-  {
-    id: 'biblia-infantil-cuentos-fe',
-    title: 'Biblia de Cuentos de Fe para Niños',
-    author: 'Editorial Unilit',
-    price: 750,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'infantiles',
-    version: 'Adaptación infantil',
-    rating: 4.7,
-    reviewCount: 234,
-    description: 'Cuentos bíblicos breves con preguntas y actividades para que los niños aprendan jugando.',
-    longDescription: 'Incluye 60 historias bíblicas con preguntas de comprensión, actividades para colorear y versículos para memorizar. Ideal para la escuela dominical y el devocional familiar.',
-    coverColors: ['#1d4ed8', '#3b82f6', '#93c5fd'],
-    stock: 32,
-    isbn: '978-0829703030',
-    publisher: 'Editorial Unilit',
-    year: 2017,
-    pages: 224,
-    language: 'Español',
-    tags: ['infantil', 'biblia', 'cuentos', 'escuela dominical'],
-  },
-  {
-    id: 'biblia-infantil-heroes-fe',
-    title: 'Héroes de la Fe para Niños',
-    author: 'Varios Autores',
-    price: 890,
-    originalPrice: 1090,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'infantiles',
-    version: 'Adaptación infantil',
-    rating: 4.8,
-    reviewCount: 187,
-    description: 'Las historias de David, Ester, Daniel y otros héroes bíblicos contadas de forma emocionante para niños.',
-    longDescription: 'Presenta a los grandes héroes de la fe bíblica —David, Ester, Daniel, Josué— en historias emocionantes ilustradas a todo color, perfectas para inspirar valentía y fe en los niños.',
-    coverColors: ['#92400e', '#d97706', '#fcd34d'],
-    stock: 25,
-    isbn: '978-0829703031',
-    publisher: 'Editorial Vida',
-    year: 2019,
-    pages: 192,
-    language: 'Español',
-    newArrival: true,
-    tags: ['infantil', 'biblia', 'héroes', 'historias'],
-  },
-
-  // ── Biblias > Pastorales ──
-  {
-    id: 'biblia-pastoral-ministerio-rvr60',
-    title: 'Biblia del Ministerio Pastoral – RVR1960',
-    author: 'Editorial Portavoz',
-    price: 2490,
-    originalPrice: 2990,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'pastorales',
-    version: 'Reina Valera 1960',
-    rating: 4.9,
-    reviewCount: 178,
-    description: 'Diseñada para pastores: guías para predicación, bosquejos de sermones y recursos para el ministerio.',
-    longDescription: 'Incluye guías homiléticas, bosquejos de sermones por libro bíblico, índice de textos para ocasiones especiales (bodas, funerales, bautismos) y recursos prácticos para el ministerio pastoral diario.',
-    coverColors: ['#1e1b4b', '#312e81', '#818cf8'],
-    stock: 12,
-    isbn: '978-0829703040',
-    publisher: 'Editorial Portavoz',
-    year: 2016,
-    pages: 1872,
-    language: 'Español',
-    bestseller: true,
-    tags: ['biblia', 'pastoral', 'ministerio', 'predicación'],
-  },
-  {
-    id: 'biblia-predicador-nvi',
-    title: 'Biblia del Predicador – NVI',
-    author: 'Editorial Vida',
-    price: 2890,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'pastorales',
-    version: 'NVI',
-    rating: 4.8,
-    reviewCount: 92,
-    description: 'Con comentarios homiléticos y herramientas de exégesis pensadas para la preparación de sermones.',
-    longDescription: 'Una herramienta indispensable para el pastor y maestro bíblico, con comentarios homiléticos versículo por versículo, mapas de contexto histórico y herramientas de exégesis para la preparación de sermones.',
-    coverColors: ['#374151', '#1f2937', '#6b7280'],
-    stock: 8,
-    isbn: '978-0829703041',
-    publisher: 'Editorial Vida',
-    year: 2014,
-    pages: 2048,
-    language: 'Español',
-    tags: ['biblia', 'pastoral', 'predicador', 'homilética'],
-  },
-  {
-    id: 'biblia-ceremonias-pastorales',
-    title: 'Biblia para Ceremonias Pastorales – RVR1960',
-    author: 'Sociedad Bíblica',
-    price: 2290,
-    originalPrice: 2690,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'pastorales',
-    version: 'Reina Valera 1960',
-    rating: 4.7,
-    reviewCount: 64,
-    description: 'Incluye liturgias para bodas, funerales, bautismos y dedicaciones. Cubierta elegante en cuero genuino.',
-    longDescription: 'Edición de lujo en cuero genuino con liturgias completas para bodas, funerales, bautismos, dedicación de niños y santa cena. El acompañante perfecto para el pastor en cada ceremonia.',
-    coverColors: ['#000000', '#1c1917', '#57534e'],
-    stock: 10,
-    isbn: '978-0829703042',
-    publisher: 'Sociedades Bíblicas Unidas',
-    year: 2012,
-    pages: 1696,
-    language: 'Español',
-    tags: ['biblia', 'pastoral', 'ceremonias', 'liturgia'],
-  },
-  {
-    id: 'biblia-lider-ministerial',
-    title: 'Biblia del Líder Ministerial – NTV',
-    author: 'Tyndale',
-    price: 2150,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'pastorales',
-    version: 'NTV',
-    rating: 4.8,
-    reviewCount: 71,
-    description: 'Recursos para líderes de ministerio: discipulado, consejería pastoral y administración eclesial.',
-    longDescription: 'Pensada para líderes de ministerio en general, no solo pastores: incluye recursos de discipulado, principios de consejería pastoral básica y guías de administración eclesial.',
-    coverColors: ['#7c2d12', '#9a3412', '#fb923c'],
-    stock: 9,
-    isbn: '978-0829703043',
-    publisher: 'Tyndale House',
-    year: 2018,
-    pages: 1760,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'pastoral', 'líder', 'discipulado'],
-  },
-
-  // ── Biblias > De Estudio ──
-  {
-    id: 'biblia-estudio-macarthur',
-    title: 'Biblia de Estudio MacArthur – NVI',
-    author: 'John MacArthur',
-    price: 2990,
-    originalPrice: 3590,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'estudio',
-    version: 'NVI',
-    rating: 4.9,
-    reviewCount: 1876,
-    description: 'La biblia de estudio definitiva. Más de 20.000 notas exegéticas del Dr. MacArthur versículo a versículo.',
-    longDescription: 'Considerada por pastores y teólogos como la herramienta más completa disponible en español. Incluye más de 20.000 notas exegéticas, introducciones detalladas, artículos temáticos y mapas bíblicos.',
-    coverColors: ['#172554', '#1e40af', '#60a5fa'],
-    stock: 12,
-    isbn: '978-0829762198',
-    publisher: 'Editorial Portavoz',
-    year: 2004,
-    pages: 2016,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['biblia', 'estudio', 'MacArthur', 'exégesis'],
-  },
-  {
-    id: 'biblia-estudio-rvr60-concordancia',
-    title: 'Biblia de Estudio con Concordancia – RVR1960',
-    author: 'Sociedad Bíblica',
-    price: 1990,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'estudio',
-    version: 'Reina Valera 1960',
-    rating: 4.8,
-    reviewCount: 543,
-    description: 'Concordancia exhaustiva, mapas bíblicos y referencias cruzadas para el estudio profundo de la Palabra.',
-    longDescription: 'Incluye una concordancia exhaustiva de más de 30.000 entradas, mapas bíblicos a color, referencias cruzadas en cada página y un diccionario bíblico básico al final.',
-    coverColors: ['#422006', '#713f12', '#d4a96a'],
-    stock: 18,
-    isbn: '978-0829703050',
-    publisher: 'Sociedades Bíblicas Unidas',
-    year: 2010,
-    pages: 1984,
-    language: 'Español',
-    tags: ['biblia', 'estudio', 'concordancia', 'RVR1960'],
-  },
-  {
-    id: 'biblia-estudio-vida-plenitud',
-    title: 'Biblia de Estudio Vida Plena – NVI',
-    author: 'Editorial Vida',
-    price: 2590,
-    originalPrice: 2990,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'estudio',
-    version: 'NVI',
-    rating: 4.8,
-    reviewCount: 412,
-    description: 'Notas de estudio del Movimiento Carismático y Pentecostal, ideal para el estudio doctrinal profundo.',
-    longDescription: 'Con notas de estudio que exploran la obra del Espíritu Santo, dones espirituales y vida cristiana plena. Incluye artículos doctrinales y plan de lectura anual.',
-    coverColors: ['#581c87', '#7e22ce', '#c084fc'],
-    stock: 14,
-    isbn: '978-0829703051',
-    publisher: 'Editorial Vida',
-    year: 2013,
-    pages: 2112,
-    language: 'Español',
-    bestseller: true,
-    tags: ['biblia', 'estudio', 'vida plena', 'NVI'],
-  },
-  {
-    id: 'biblia-estudio-cronologica-historica',
-    title: 'Biblia de Estudio Cronológica e Histórica – NVI',
-    author: 'Biblica',
-    price: 2790,
-    category: 'Biblias',
-    categorySlug: 'biblias',
-    subcategory: 'estudio',
-    version: 'NVI',
-    rating: 4.7,
-    reviewCount: 298,
-    description: 'Reordena el texto bíblico según la cronología histórica, con notas que explican el contexto de cada época.',
-    longDescription: 'La Biblia reordena el texto bíblico según el orden histórico de los eventos, con notas de estudio que explican el contexto cultural y político de cada época bíblica.',
-    coverColors: ['#1e1b4b', '#3730a3', '#818cf8'],
-    stock: 11,
-    isbn: '978-0829762150',
-    publisher: 'Editorial Vida',
-    year: 2007,
-    pages: 1984,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'estudio', 'cronológica', 'historia bíblica'],
-  },
-
-  // ══════════════ DEVOCIONALES ══════════════
-
-  // ── Devocionales > Damas ──
-  {
-    id: 'jesus-llama-mujer',
-    title: 'Jesús Llama – Edición para la Mujer',
-    author: 'Sarah Young',
-    price: 690,
-    originalPrice: 850,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'damas',
-    rating: 4.9,
-    reviewCount: 1542,
-    description: 'El devocional más vendido de la historia moderna, en una edición especial para la mujer cristiana.',
-    longDescription: 'Con más de 30 millones de copias vendidas, "Jesús Llama" ha transformado la vida devocional de millones de mujeres. Sarah Young escribe reflexiones diarias desde la perspectiva del Señor Jesús, invitando a una relación íntima con Cristo.',
-    coverColors: ['#831843', '#be185d', '#f9a8d4'],
-    stock: 30,
-    isbn: '978-1591451885',
-    publisher: 'Thomas Nelson',
-    year: 2004,
-    pages: 400,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['devocional', 'mujer', 'damas', 'Sarah Young'],
-  },
-  {
-    id: 'susurros-esperanza-beth-moore',
-    title: 'Susurros de Esperanza',
-    author: 'Beth Moore',
-    price: 590,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'damas',
-    rating: 4.7,
-    reviewCount: 987,
-    description: 'Un devocional de 10 semanas que lleva al lector a una experiencia íntima con Dios a través de la oración.',
-    longDescription: 'Beth Moore diseñó este devocional de 10 semanas para ayudar a las mujeres a desarrollar una vida de oración más profunda, con espacios para escribir peticiones personales y reflexión.',
-    coverColors: ['#4c0519', '#881337', '#f43f5e'],
-    stock: 14,
-    isbn: '978-0805442670',
-    publisher: 'B&H Español',
-    year: 2012,
-    pages: 224,
-    language: 'Español',
-    newArrival: true,
-    tags: ['devocional', 'mujer', 'damas', 'oración', 'Beth Moore'],
-  },
-  {
-    id: 'mujer-verdadera-belleza',
-    title: 'La Mujer de Verdadera Belleza',
-    author: 'Priscilla Shirer',
-    price: 650,
-    originalPrice: 790,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'damas',
-    rating: 4.8,
-    reviewCount: 423,
-    description: 'Un devocional sobre la belleza que viene de adentro, basada en el carácter y la fe, no en la apariencia.',
-    longDescription: 'Priscilla Shirer invita a la mujer a descubrir la verdadera belleza que proviene de un corazón rendido a Dios, dejando atrás las presiones culturales sobre la imagen y la apariencia.',
-    coverColors: ['#9d174d', '#db2777', '#fbcfe8'],
-    stock: 19,
-    isbn: '978-0829703060',
-    publisher: 'B&H Español',
-    year: 2016,
-    pages: 256,
-    language: 'Español',
-    tags: ['devocional', 'mujer', 'damas', 'identidad', 'belleza'],
-  },
-  {
-    id: 'devocional-mama-segun-corazon-dios',
-    title: 'Una Mamá Conforme al Corazón de Dios',
-    author: 'Elizabeth George',
-    price: 720,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'damas',
-    rating: 4.8,
-    reviewCount: 356,
-    description: 'Devocional práctico para la mujer que busca criar a sus hijos con sabiduría y fe bíblica.',
-    longDescription: 'Elizabeth George ofrece principios bíblicos prácticos para la maternidad: paciencia, disciplina amorosa, oración por los hijos y el ejemplo de fe en el hogar.',
-    coverColors: ['#86198f', '#a21caf', '#f0abfc'],
-    stock: 17,
-    isbn: '978-0829703061',
-    publisher: 'Editorial Portavoz',
-    year: 2014,
-    pages: 288,
-    language: 'Español',
-    newArrival: true,
-    tags: ['devocional', 'mujer', 'damas', 'maternidad'],
-  },
-  {
-    id: 'mujer-oracion-poderosa',
-    title: 'El Poder de la Mujer que Ora',
-    author: 'Stormie Omartian',
-    price: 680,
-    originalPrice: 820,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'damas',
-    rating: 4.9,
-    reviewCount: 1102,
-    description: 'Un clásico devocional sobre cómo la oración transforma a la mujer, su matrimonio y su familia.',
-    longDescription: 'Stormie Omartian comparte su propio testimonio y guía a la mujer a través de oraciones específicas para cada área de su vida: matrimonio, hijos, finanzas, salud y propósito.',
-    coverColors: ['#581c87', '#9333ea', '#e9d5ff'],
-    stock: 21,
-    isbn: '978-0829703062',
-    publisher: 'Editorial Unilit',
-    year: 1997,
-    pages: 240,
-    language: 'Español',
-    bestseller: true,
-    tags: ['devocional', 'mujer', 'damas', 'oración'],
-  },
-
-  // ── Devocionales > Varones ──
-  {
-    id: 'devocional-hombres-tony-evans',
-    title: 'Devocional para Hombres',
-    author: 'Tony Evans',
-    price: 690,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'varones',
-    rating: 4.7,
-    reviewCount: 876,
-    description: '52 semanas de reflexiones bíblicas diseñadas específicamente para el hombre de hoy: fe, liderazgo y carácter.',
-    longDescription: 'El Dr. Tony Evans aborda temas cruciales como el liderazgo familiar, la integridad en el trabajo, la gestión de las emociones y el discipulado en 52 semanas de reflexión.',
-    coverColors: ['#0c2340', '#1e3a5f', '#38bdf8'],
-    stock: 16,
-    isbn: '978-0802412942',
-    publisher: 'Moody Publishers',
-    year: 2018,
-    pages: 384,
-    language: 'Español',
-    newArrival: true,
-    tags: ['devocional', 'hombre', 'varones', 'liderazgo', 'Tony Evans'],
-  },
-  {
-    id: 'hombre-segun-corazon-dios-devocional',
-    title: 'Un Hombre Conforme al Corazón de Dios',
-    author: 'Jim George',
-    price: 650,
-    originalPrice: 780,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'varones',
-    rating: 4.8,
-    reviewCount: 643,
-    description: 'Devocional clásico que desafía al hombre a vivir con propósito, integridad y pasión por Dios.',
-    longDescription: 'Jim George presenta principios prácticos para el hombre que busca crecer en su relación con Dios, su matrimonio, su paternidad y su trabajo, con un enfoque firmemente bíblico.',
-    coverColors: ['#0c1f3f', '#1e3a5f', '#3b82f6'],
-    stock: 18,
-    isbn: '978-0829703070',
-    publisher: 'Editorial Portavoz',
-    year: 2004,
-    pages: 256,
-    language: 'Español',
-    bestseller: true,
-    tags: ['devocional', 'hombre', 'varones', 'propósito'],
-  },
-  {
-    id: 'guerrero-de-oracion-hombre',
-    title: 'El Guerrero de Oración',
-    author: 'Stormie Omartian',
-    price: 680,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'varones',
-    rating: 4.7,
-    reviewCount: 412,
-    description: 'Una guía devocional para el hombre que quiere interceder por su familia, su trabajo y su iglesia.',
-    longDescription: 'Stormie Omartian guía al hombre a través de oraciones poderosas para proteger su matrimonio, criar a sus hijos en la fe y vencer las tentaciones cotidianas.',
-    coverColors: ['#1e293b', '#334155', '#94a3b8'],
-    stock: 15,
-    isbn: '978-0829703071',
-    publisher: 'Editorial Unilit',
-    year: 2003,
-    pages: 240,
-    language: 'Español',
-    newArrival: true,
-    tags: ['devocional', 'hombre', 'varones', 'oración'],
-  },
-  {
-    id: 'hombria-biblica-devocional',
-    title: 'Hombría Bíblica: 90 Días de Reflexión',
-    author: 'John Piper',
-    price: 720,
-    originalPrice: 870,
-    category: 'Devocionales',
-    categorySlug: 'devocionales',
-    subcategory: 'varones',
-    rating: 4.8,
-    reviewCount: 298,
-    description: '90 reflexiones diarias sobre lo que significa vivir la masculinidad bíblica con humildad y fortaleza.',
-    longDescription: 'John Piper desafía al hombre cristiano a vivir una masculinidad bíblica auténtica: liderazgo servicial, fortaleza con mansedumbre y sacrificio por amor a su familia y su iglesia.',
-    coverColors: ['#7c2d12', '#9a3412', '#fb923c'],
-    stock: 13,
-    isbn: '978-0829703072',
-    publisher: 'Editorial Portavoz',
-    year: 2015,
-    pages: 304,
-    language: 'Español',
-    tags: ['devocional', 'hombre', 'varones', 'masculinidad'],
-  },
-
-  // ══════════════ GUERRA ESPIRITUAL ══════════════
-  {
-    id: 'guerra-espiritual-derek-prince',
-    title: 'Guerra Espiritual',
-    author: 'Derek Prince',
-    price: 690,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.9,
-    reviewCount: 1432,
-    description: 'Un clásico sobre la batalla espiritual que enfrenta todo creyente y cómo vencer con las armas de Dios.',
-    longDescription: 'Derek Prince explica con claridad bíblica la realidad del mundo espiritual, la naturaleza del enemigo y las armas que Dios ha dado al creyente para vencer: la Palabra, la oración, la fe y la sangre de Cristo.',
-    coverColors: ['#1e1b4b', '#312e81', '#6366f1'],
-    stock: 24,
-    isbn: '978-0789916440',
-    publisher: 'Editorial Unilit',
-    year: 1987,
-    pages: 256,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['guerra espiritual', 'liberación', 'Derek Prince'],
-  },
-  {
-    id: 'armadura-de-dios-priscilla-shirer',
-    title: 'La Armadura de Dios',
-    author: 'Priscilla Shirer',
-    price: 750,
-    originalPrice: 890,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.9,
-    reviewCount: 987,
-    description: 'Un estudio profundo de Efesios 6 sobre cómo vestirse con la armadura espiritual cada día.',
-    longDescription: 'Priscilla Shirer desglosa cada pieza de la armadura de Dios descrita en Efesios 6, mostrando cómo aplicarla prácticamente para resistir los ataques del enemigo en la vida diaria.',
-    coverColors: ['#7f1d1d', '#991b1b', '#f87171'],
-    stock: 20,
-    isbn: '978-1433645958',
-    publisher: 'B&H Español',
-    year: 2015,
-    pages: 224,
-    language: 'Español',
-    bestseller: true,
-    tags: ['guerra espiritual', 'armadura', 'Efesios', 'Priscilla Shirer'],
-  },
-  {
-    id: 'reprende-al-diablo-john-eckhardt',
-    title: 'Oraciones que Derrotan a los Demonios',
-    author: 'John Eckhardt',
-    price: 620,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.7,
-    reviewCount: 543,
-    description: 'Más de 500 oraciones de guerra espiritual para liberación personal, familiar y territorial.',
-    longDescription: 'John Eckhardt compila cientos de oraciones de guerra espiritual organizadas por tema: liberación personal, protección familiar, finanzas, salud y avance del Reino de Dios.',
-    coverColors: ['#450a0a', '#7f1d1d', '#dc2626'],
-    stock: 22,
-    isbn: '978-1621360415',
-    publisher: 'Casa Creación',
-    year: 2014,
-    pages: 320,
-    language: 'Español',
-    newArrival: true,
-    tags: ['guerra espiritual', 'oración', 'liberación', 'John Eckhardt'],
-  },
-  {
-    id: 'manual-guerra-espiritual-dean-sherman',
-    title: 'Guerra Espiritual para el Creyente Normal',
-    author: 'Dean Sherman',
-    price: 590,
-    originalPrice: 720,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.8,
-    reviewCount: 312,
-    description: 'Un enfoque equilibrado y bíblico de la guerra espiritual, sin extremos ni sensacionalismo.',
-    longDescription: 'Dean Sherman ofrece una perspectiva bíblica balanceada sobre la guerra espiritual, evitando tanto la negación del mundo espiritual como el sensacionalismo, con aplicación práctica para cada creyente.',
-    coverColors: ['#0c4a6e', '#075985', '#38bdf8'],
-    stock: 17,
-    isbn: '978-0927545104',
-    publisher: 'YWAM Publishing',
-    year: 1990,
-    pages: 288,
-    language: 'Español',
-    tags: ['guerra espiritual', 'discipulado', 'Dean Sherman'],
-  },
-  {
-    id: 'rompiendo-maldiciones-generacionales',
-    title: 'Rompiendo las Maldiciones Generacionales',
-    author: 'Marilyn Hickey',
-    price: 640,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.6,
-    reviewCount: 276,
-    description: 'Cómo identificar y romper patrones espirituales negativos que se repiten de generación en generación.',
-    longDescription: 'Marilyn Hickey enseña cómo identificar maldiciones generacionales en la familia y romperlas a través de la autoridad de la sangre de Cristo y la oración de liberación.',
-    coverColors: ['#581c87', '#7e22ce', '#c084fc'],
-    stock: 14,
-    isbn: '978-0789912530',
-    publisher: 'Casa Creación',
-    year: 2000,
-    pages: 192,
-    language: 'Español',
-    newArrival: true,
-    tags: ['guerra espiritual', 'liberación', 'familia'],
-  },
-  {
-    id: 'venciendo-las-fuerzas-oscuras',
-    title: 'Venciendo las Fuerzas de la Oscuridad',
-    author: 'Cindy Jacobs',
-    price: 680,
-    originalPrice: 810,
-    category: 'Guerra Espiritual',
-    categorySlug: 'guerra-espiritual',
-    rating: 4.7,
-    reviewCount: 198,
-    description: 'Estrategias de intercesión y guerra espiritual territorial para iglesias y ciudades.',
-    longDescription: 'Cindy Jacobs comparte principios de intercesión territorial y guerra espiritual a nivel de ciudad y región, con testimonios de transformación a través de la oración estratégica.',
-    coverColors: ['#1e1b4b', '#3730a3', '#818cf8'],
-    stock: 11,
-    isbn: '978-0830718932',
-    publisher: 'Editorial Vida',
-    year: 1991,
-    pages: 304,
-    language: 'Español',
-    tags: ['guerra espiritual', 'intercesión', 'Cindy Jacobs'],
-  },
-
-  // ══════════════ FINANZAS ══════════════
-  {
-    id: 'finanzas-conforme-corazon-dios',
-    title: 'Finanzas Conforme al Corazón de Dios',
-    author: 'Larry Burkett',
-    price: 650,
-    originalPrice: 790,
-    category: 'Finanzas',
-    categorySlug: 'finanzas',
-    rating: 4.8,
-    reviewCount: 765,
-    description: 'Principios bíblicos prácticos para administrar el dinero, salir de deudas y dar con generosidad.',
-    longDescription: 'Larry Burkett presenta principios bíblicos sólidos sobre el manejo del dinero: presupuesto, ahorro, salida de deudas, inversión responsable y la práctica del diezmo y la generosidad cristiana.',
-    coverColors: ['#14532d', '#15803d', '#4ade80'],
-    stock: 22,
-    isbn: '978-0789917064',
-    publisher: 'Editorial Unilit',
-    year: 1998,
-    pages: 272,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['finanzas', 'mayordomía', 'Larry Burkett'],
-  },
-  {
-    id: 'libre-de-deudas-dave-ramsey',
-    title: 'La Transformación Total de su Dinero',
-    author: 'Dave Ramsey',
-    price: 790,
-    category: 'Finanzas',
-    categorySlug: 'finanzas',
-    rating: 4.9,
-    reviewCount: 2134,
-    description: 'El plan de 7 pasos de Dave Ramsey para salir de deudas y construir riqueza con sabiduría bíblica.',
-    longDescription: 'Dave Ramsey presenta su famoso plan de "bola de nieve" para pagar deudas, junto con principios bíblicos sobre el ahorro, el fondo de emergencia y la generosidad como estilo de vida.',
-    coverColors: ['#7c2d12', '#c2410c', '#fb923c'],
-    stock: 28,
-    isbn: '978-1937077298',
-    publisher: 'Grupo Nelson',
-    year: 2009,
-    pages: 280,
-    language: 'Español',
-    bestseller: true,
-    tags: ['finanzas', 'deudas', 'Dave Ramsey'],
-  },
-  {
-    id: 'mayordomia-biblica-randy-alcorn',
-    title: 'La Generosidad: El Secreto de la Vida Alegre',
-    author: 'Randy Alcorn',
-    price: 620,
-    originalPrice: 750,
-    category: 'Finanzas',
-    categorySlug: 'finanzas',
-    rating: 4.7,
-    reviewCount: 432,
-    description: 'Cómo la generosidad bíblica transforma el corazón y trae verdadero gozo, más allá del dinero.',
-    longDescription: 'Randy Alcorn explora la teología de la generosidad bíblica, mostrando con testimonios e investigación cómo dar con alegría transforma no solo a quien recibe, sino profundamente a quien da.',
-    coverColors: ['#854d0e', '#a16207', '#fde047'],
-    stock: 19,
-    isbn: '978-0789908266',
-    publisher: 'Editorial Portavoz',
-    year: 2001,
-    pages: 256,
-    language: 'Español',
-    newArrival: true,
-    tags: ['finanzas', 'generosidad', 'diezmo'],
-  },
-  {
-    id: 'prosperidad-biblica-equilibrada',
-    title: 'Prosperidad con Propósito',
-    author: 'Rick Warren',
-    price: 590,
-    category: 'Finanzas',
-    categorySlug: 'finanzas',
-    rating: 4.6,
-    reviewCount: 312,
-    description: 'Un enfoque bíblico equilibrado sobre la prosperidad, evitando tanto la pobreza como el materialismo.',
-    longDescription: 'Rick Warren presenta una visión bíblica balanceada de la prosperidad: ni la teología de la pobreza ni el evangelio de la prosperidad extremo, sino mayordomía fiel y propósito eterno con los recursos.',
-    coverColors: ['#0c4a6e', '#0369a1', '#7dd3fc'],
-    stock: 16,
-    isbn: '978-0789703080',
-    publisher: 'Editorial Vida',
-    year: 2005,
-    pages: 224,
-    language: 'Español',
-    tags: ['finanzas', 'prosperidad', 'mayordomía'],
-  },
-  {
-    id: 'el-hombre-mas-rico-babilonia-cristiano',
-    title: 'El Hombre Más Rico de Babilonia',
-    author: 'George S. Clason',
-    price: 540,
-    originalPrice: 650,
-    category: 'Finanzas',
-    categorySlug: 'finanzas',
-    rating: 4.8,
-    reviewCount: 1876,
-    description: 'El clásico atemporal sobre los principios de la riqueza, contado a través de parábolas babilónicas.',
-    longDescription: 'A través de relatos ambientados en la antigua Babilonia, este clásico enseña principios fundamentales sobre el ahorro, la inversión y el manejo sabio del dinero que siguen vigentes hoy.',
-    coverColors: ['#78350f', '#b45309', '#fbbf24'],
-    stock: 24,
-    isbn: '978-0451205360',
-    publisher: 'Obelisco',
-    year: 1926,
-    pages: 192,
-    language: 'Español',
-    newArrival: true,
-    tags: ['finanzas', 'riqueza', 'clásico'],
-  },
-
-  // ══════════════ CRECIMIENTO PERSONAL ══════════════
-  {
-    id: 'una-vida-con-proposito',
-    title: 'Una Vida con Propósito',
-    author: 'Rick Warren',
-    price: 690,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.8,
-    reviewCount: 8765,
-    description: 'El libro cristiano más vendido de la historia moderna. Responde la pregunta: ¿Para qué estoy aquí?',
-    longDescription: 'Rick Warren responde la pregunta más fundamental de la existencia humana basándose en más de 1.200 versículos bíblicos, presentando cinco propósitos que Dios tiene para cada vida.',
-    coverColors: ['#052e16', '#15803d', '#86efac'],
-    stock: 30,
-    isbn: '978-0829731590',
-    publisher: 'Editorial Vida',
-    year: 2002,
-    pages: 336,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['crecimiento', 'propósito', 'Rick Warren'],
-  },
-  {
-    id: 'gracia-max-lucado',
-    title: 'Gracia: Más que lo Imaginamos',
-    author: 'Max Lucado',
-    price: 590,
-    originalPrice: 720,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.7,
-    reviewCount: 1876,
-    description: 'La obra más profunda de Max Lucado sobre el regalo más grande: la gracia de Dios que transforma.',
-    longDescription: 'Max Lucado explora el concepto central del evangelio, la gracia, no como un concepto teológico abstracto sino como una fuerza viva que transforma pecadores en santos.',
-    coverColors: ['#78350f', '#b45309', '#fbbf24'],
-    stock: 22,
-    isbn: '978-0718014520',
-    publisher: 'Grupo Nelson',
-    year: 2012,
-    pages: 224,
-    language: 'Español',
-    newArrival: true,
-    tags: ['gracia', 'Max Lucado', 'crecimiento'],
-  },
-  {
-    id: 'los-5-lenguajes-del-amor',
-    title: 'Los 5 Lenguajes del Amor',
-    author: 'Gary Chapman',
-    price: 650,
-    originalPrice: 790,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.8,
-    reviewCount: 9876,
-    description: 'El libro que ha transformado millones de matrimonios. Descubre el idioma del amor de tu cónyuge.',
-    longDescription: 'Gary Chapman identifica los cinco lenguajes del amor: palabras de afirmación, actos de servicio, regalos, tiempo de calidad y contacto físico, basado en principios bíblicos.',
-    coverColors: ['#4c0519', '#9f1239', '#fb7185'],
-    stock: 28,
-    isbn: '978-0789918338',
-    publisher: 'Editorial Unilit',
-    year: 1992,
-    pages: 224,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['matrimonio', 'amor', 'crecimiento', 'familia'],
-  },
-  {
-    id: 'el-caso-de-cristo-strobel',
-    title: 'El Caso de Cristo',
-    author: 'Lee Strobel',
-    price: 650,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.8,
-    reviewCount: 3456,
-    description: 'Un periodista ateo investiga con rigor la resurrección de Jesucristo. Sus conclusiones lo cambiaron todo.',
-    longDescription: 'Lee Strobel entrevistó a los mejores expertos en historia, arqueología y filosofía buscando refutar el cristianismo, y llegó a la conclusión de que la resurrección es el evento mejor documentado de la historia antigua.',
-    coverColors: ['#172554', '#1e40af', '#93c5fd'],
-    stock: 24,
-    isbn: '978-0829762891',
-    publisher: 'Editorial Vida',
-    year: 1998,
-    pages: 352,
-    language: 'Español',
-    featured: true,
-    bestseller: true,
-    tags: ['apologética', 'crecimiento', 'Lee Strobel'],
-  },
-  {
-    id: 'mero-cristianismo-lewis',
-    title: 'Mero Cristianismo',
-    author: 'C.S. Lewis',
-    price: 590,
-    originalPrice: 690,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.9,
-    reviewCount: 4231,
-    description: 'La defensa intelectual más brillante de la fe cristiana del siglo XX.',
-    longDescription: 'A través de argumentos lógicos y accesibles, Lewis presenta una defensa del cristianismo que parte de la ley moral y llega a la persona de Jesucristo.',
-    coverColors: ['#052e16', '#166534', '#22c55e'],
-    stock: 28,
-    isbn: '978-0060652920',
-    publisher: 'Rayo (HarperCollins)',
-    year: 1952,
-    pages: 288,
-    language: 'Español',
-    newArrival: true,
-    tags: ['apologética', 'C.S. Lewis', 'crecimiento'],
-  },
-  {
-    id: 'en-pos-de-lo-supremo',
-    title: 'En Pos de lo Supremo',
-    author: 'Oswald Chambers',
-    price: 540,
-    category: 'Crecimiento Personal',
-    categorySlug: 'crecimiento-personal',
-    rating: 4.9,
-    reviewCount: 2876,
-    description: 'Considerado el devocional clásico de la literatura cristiana, para alcanzar la máxima devoción a Dios.',
-    longDescription: 'Oswald Chambers llama al creyente a alcanzar la máxima devoción a Dios, sin compromisos. Sus reflexiones diarias son densas, proféticas y tremendamente relevantes hoy.',
-    coverColors: ['#1e1b4b', '#3730a3', '#a5b4fc'],
-    stock: 22,
-    isbn: '978-0929239354',
-    publisher: 'Discovery House',
-    year: 1935,
-    pages: 400,
-    language: 'Español',
-    bestseller: true,
-    tags: ['devocional', 'crecimiento', 'Oswald Chambers'],
-  },
-
-  // ══════════════ OFERTAS (descuentos destacados, cruzan otras categorías arriba pero se listan aquí también para la sección Ofertas) ══════════════
-  {
-    id: 'biblia-promesas-rvr60-oferta',
-    title: 'Biblia de Promesas – RVR1960',
-    author: 'Editorial Unilit',
-    price: 990,
-    originalPrice: 1490,
-    category: 'Ofertas',
-    categorySlug: 'ofertas',
-    version: 'Reina Valera 1960',
-    rating: 4.7,
-    reviewCount: 1432,
-    description: 'Todas las promesas de Dios reunidas y marcadas en el texto, con índice temático. ¡Precio especial!',
-    longDescription: 'Identificadas y organizadas sistemáticamente, las miles de promesas que Dios ha hecho a su pueblo están marcadas visualmente en el texto, con un índice completo clasificado por tema.',
-    coverColors: ['#78350f', '#b45309', '#fbbf24'],
-    stock: 20,
-    isbn: '978-0789918536',
-    publisher: 'Editorial Unilit',
-    year: 2000,
-    pages: 1408,
-    language: 'Español',
-    bestseller: true,
-    tags: ['biblia', 'promesas', 'oferta'],
-  },
-  {
-    id: 'cronicas-de-narnia-oferta',
-    title: 'Las Crónicas de Narnia (Colección Completa)',
-    author: 'C.S. Lewis',
-    price: 1290,
-    originalPrice: 1890,
-    category: 'Ofertas',
-    categorySlug: 'ofertas',
-    rating: 4.9,
-    reviewCount: 3456,
-    description: 'La saga de fantasía cristiana más querida, los siete libros completos a precio de oferta.',
-    longDescription: 'Los siete libros de las Crónicas de Narnia presentan el evangelio completo a través de la historia de Aslan, el Gran León. Edición completa en oferta especial por tiempo limitado.',
-    coverColors: ['#042f2e', '#0f766e', '#14b8a6'],
-    stock: 22,
-    isbn: '978-8467575385',
-    publisher: 'Destino',
-    year: 1956,
-    pages: 768,
-    language: 'Español',
-    featured: true,
-    tags: ['fantasía', 'C.S. Lewis', 'oferta'],
-  },
-  {
-    id: 'biblia-pescador-evangelismo-oferta',
-    title: 'Biblia del Pescador – NVI (Evangelismo)',
-    author: 'Tyndale House',
-    price: 420,
-    originalPrice: 690,
-    category: 'Ofertas',
-    categorySlug: 'ofertas',
-    version: 'NVI',
-    rating: 4.7,
-    reviewCount: 823,
-    description: 'La Biblia perfecta para evangelismo y regalar a personas comenzando su camino de fe, en oferta.',
-    longDescription: 'Diseñada para el evangelismo personal, con formato compacto, notas explicativas básicas y guía de primeros pasos en la fe. Precio especial para comprar en cantidad para tu iglesia.',
-    coverColors: ['#042f2e', '#0f766e', '#2dd4bf'],
-    stock: 40,
-    isbn: '978-1414300207',
-    publisher: 'Tyndale House',
-    year: 2005,
-    pages: 1152,
-    language: 'Español',
-    newArrival: true,
-    tags: ['biblia', 'evangelismo', 'oferta'],
-  },
-  {
-    id: 'bonhoeffer-metaxas-oferta',
-    title: 'Bonhoeffer: Pastor, Mártir, Profeta',
-    author: 'Eric Metaxas',
-    price: 990,
-    originalPrice: 1490,
-    category: 'Ofertas',
-    categorySlug: 'ofertas',
-    rating: 4.8,
-    reviewCount: 1123,
-    description: 'La biografía definitiva de Dietrich Bonhoeffer, ahora a precio especial.',
-    longDescription: 'Eric Metaxas narra la extraordinaria vida de Dietrich Bonhoeffer: teólogo, pastor, agente de la resistencia alemana contra el nazismo y mártir cristiano.',
-    coverColors: ['#0c0a09', '#1c1917', '#78716c'],
-    stock: 12,
-    isbn: '978-1595552464',
-    publisher: 'Thomas Nelson',
-    year: 2010,
-    pages: 608,
-    language: 'Español',
-    tags: ['biografía', 'Bonhoeffer', 'oferta'],
-  },
-  {
-    id: 'el-progreso-del-peregrino-oferta',
-    title: 'El Progreso del Peregrino',
-    author: 'John Bunyan',
-    price: 450,
-    originalPrice: 650,
-    category: 'Ofertas',
-    categorySlug: 'ofertas',
-    rating: 4.8,
-    reviewCount: 1876,
-    description: 'La alegoría cristiana más leída de todos los tiempos, en oferta por tiempo limitado.',
-    longDescription: 'El viaje de Cristiano a través del Pantano de la Desesperación, el Castillo de la Duda y la Feria de las Vanidades sigue siendo una representación perfecta del camino de fe cristiana.',
-    coverColors: ['#1c1917', '#44403c', '#a8a29e'],
-    stock: 18,
-    isbn: '978-8476459553',
-    publisher: 'Clie',
-    year: 1678,
-    pages: 336,
-    language: 'Español',
-    tags: ['teología', 'alegoría', 'oferta'],
-  },
-]
-
-export const combos: Combo[] = [
-  {
-    id: 'combo-familia-fe',
-    title: 'Combo Familia de Fe',
-    slug: 'combo-familia-fe',
-    bookIds: ['mi-primera-biblia-ilustrada', 'biblia-mujer-conforme-corazon-dios', 'biblia-hombre-guerrero-rvr60'],
-    price: 3290,
-    originalPrice: 3990,
-    description: 'Una Biblia para cada miembro de la familia: papá, mamá y los más pequeños. El paquete perfecto para fortalecer la fe en el hogar.',
-    coverColors: ['#0C1F3F', '#1e3a5f', '#F97316'],
-  },
-  {
-    id: 'combo-guerrero-espiritual',
-    title: 'Combo Guerrero Espiritual',
-    slug: 'combo-guerrero-espiritual',
-    bookIds: ['guerra-espiritual-derek-prince', 'armadura-de-dios-priscilla-shirer', 'reprende-al-diablo-john-eckhardt'],
-    price: 1690,
-    originalPrice: 2060,
-    description: 'Tres libros esenciales para entender y vencer en la batalla espiritual diaria. Incluye Derek Prince, Priscilla Shirer y John Eckhardt.',
-    coverColors: ['#1e1b4b', '#7f1d1d', '#450a0a'],
-  },
-  {
-    id: 'combo-mayordomia-biblica',
-    title: 'Combo Mayordomía Bíblica',
-    slug: 'combo-mayordomia-biblica',
-    bookIds: ['finanzas-conforme-corazon-dios', 'libre-de-deudas-dave-ramsey', 'el-hombre-mas-rico-babilonia-cristiano'],
-    price: 1590,
-    originalPrice: 1980,
-    description: 'Aprende a administrar tus finanzas con sabiduría bíblica. Tres lecturas clave sobre dinero, deudas y generosidad.',
-    coverColors: ['#14532d', '#7c2d12', '#78350f'],
-  },
-]
-
-export default books
-
-export function getAllBooks(): Book[] {
-  return books
+interface ComboRow {
+  id: string
+  slug: string
+  title: string
+  description: string | null
+  price: number
+  original_price: number | null
+  image: string | null
+  book_ids: string[]
+  created_at?: string
+  updated_at?: string
 }
 
-export function getAllCombos(): Combo[] {
-  return combos
+function mapBookRow(row: BookRow): Book {
+  const categorySlug = row.category as CategorySlug
+  return {
+    id: row.slug,
+    dbId: row.id,
+    title: row.title,
+    author: row.author,
+    price: Number(row.price),
+    originalPrice: row.original_price != null ? Number(row.original_price) : undefined,
+    category: CATEGORY_LABELS[categorySlug] ?? row.category,
+    categorySlug,
+    subcategory: (row.subcategory as Subcategory) ?? undefined,
+    version: row.version ?? undefined,
+    image: row.image ?? undefined,
+    rating: row.rating != null ? Number(row.rating) : 4.5,
+    reviewCount: row.reviews_count ?? 0,
+    description: row.description ?? '',
+    longDescription: row.description ?? '',
+    coverColors: colorsForSlug(row.slug),
+    stock: row.stock ?? 0,
+    isbn: row.isbn ?? '',
+    publisher: row.publisher ?? '',
+    year: row.created_at ? new Date(row.created_at).getFullYear() : new Date().getFullYear(),
+    pages: row.pages ?? 0,
+    language: row.language ?? 'Español',
+    featured: row.featured ?? false,
+    bestseller: row.bestseller ?? false,
+    newArrival: row.new_arrival ?? false,
+    tags: [row.category, row.subcategory, row.version].filter((t): t is string => Boolean(t)),
+  }
 }
 
-export function getCombos(): Combo[] {
-  return combos
+function mapComboRow(row: ComboRow): Combo {
+  return {
+    id: row.slug,
+    title: row.title,
+    slug: row.slug,
+    bookIds: row.book_ids ?? [],
+    price: Number(row.price),
+    originalPrice: row.original_price != null ? Number(row.original_price) : Number(row.price),
+    image: row.image ?? undefined,
+    coverColors: colorsForSlug(row.slug),
+    description: row.description ?? '',
+  }
 }
 
-export function getComboBooks(combo: Combo): Book[] {
-  return combo.bookIds
-    .map((id) => books.find((b) => b.id === id))
-    .filter((b): b is Book => Boolean(b))
+const BOOK_COLUMNS =
+  'id, slug, title, author, category, subcategory, version, description, price, original_price, stock, image, rating, reviews_count, pages, language, isbn, publisher, featured, bestseller, new_arrival, created_at, updated_at'
+
+export async function getAllBooks(): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function getBookById(id: string): Book | undefined {
-  return books.find((book) => book.id === id)
+export async function getAllCombos(): Promise<Combo[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('combos').select('*')
+  if (error) throw error
+  return (data as ComboRow[]).map(mapComboRow)
 }
 
-export function getFeaturedBooks(): Book[] {
-  return books.filter((book) => book.featured)
+export async function getCombos(): Promise<Combo[]> {
+  return getAllCombos()
 }
 
-export function getBestsellers(): Book[] {
-  return books.filter((book) => book.bestseller)
+export async function getComboBooks(combo: Combo): Promise<Book[]> {
+  if (!combo.bookIds.length) return []
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).in('id', combo.bookIds)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function getNewArrivals(): Book[] {
-  return books.filter((book) => book.newArrival)
+export async function getBookById(id: string): Promise<Book | undefined> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('slug', id).maybeSingle()
+  if (error) throw error
+  return data ? mapBookRow(data as BookRow) : undefined
 }
 
-export function getBooksByCategory(slug: CategorySlug): Book[] {
-  return books.filter((book) => book.categorySlug === slug)
+export async function getFeaturedBooks(): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('featured', true)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function getBooksBySubcategory(slug: CategorySlug, subcategory: Subcategory): Book[] {
-  return books.filter((book) => book.categorySlug === slug && book.subcategory === subcategory)
+export async function getBestsellers(): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('bestseller', true)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function getOfertas(): Book[] {
-  return books.filter((book) => book.originalPrice !== undefined && book.originalPrice > book.price)
+export async function getNewArrivals(): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('new_arrival', true)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function getRelatedBooks(book: Book, count = 4): Book[] {
-  return books.filter((b) => b.categorySlug === book.categorySlug && b.id !== book.id).slice(0, count)
+export async function getBooksByCategory(slug: CategorySlug): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).eq('category', slug)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }
 
-export function searchBooks(query: string): Book[] {
-  const q = query.toLowerCase()
-  return books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(q) ||
-      book.author.toLowerCase().includes(q) ||
-      book.tags.some((tag) => tag.toLowerCase().includes(q)) ||
-      book.category.toLowerCase().includes(q)
-  )
+export async function getBooksBySubcategory(slug: CategorySlug, subcategory: Subcategory): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('books')
+    .select(BOOK_COLUMNS)
+    .eq('category', slug)
+    .eq('subcategory', subcategory)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
+}
+
+export async function getOfertas(): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase.from('books').select(BOOK_COLUMNS).not('original_price', 'is', null)
+  if (error) throw error
+  return (data as BookRow[])
+    .filter((row) => row.original_price != null && Number(row.original_price) > Number(row.price))
+    .map(mapBookRow)
+}
+
+export async function getRelatedBooks(book: Book, count = 4): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('books')
+    .select(BOOK_COLUMNS)
+    .eq('category', book.categorySlug)
+    .neq('slug', book.id)
+    .limit(count)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
+}
+
+export async function searchBooks(query: string): Promise<Book[]> {
+  const supabase = getSupabaseServerClient()
+  const q = `%${query}%`
+  const { data, error } = await supabase
+    .from('books')
+    .select(BOOK_COLUMNS)
+    .or(`title.ilike.${q},author.ilike.${q},category.ilike.${q}`)
+  if (error) throw error
+  return (data as BookRow[]).map(mapBookRow)
 }

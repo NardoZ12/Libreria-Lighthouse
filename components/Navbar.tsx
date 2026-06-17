@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, ShoppingCart, Menu, X, BookOpen } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
+import AuthMenu from '@/components/AuthMenu'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -129,6 +130,8 @@ export default function Navbar() {
                   <Search size={20} />
                 </button>
               )}
+
+              <AuthMenu />
 
               {/* Cart */}
               <button

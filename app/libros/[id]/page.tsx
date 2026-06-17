@@ -1,18 +1,17 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
-  ShoppingCart, Heart, Share2, Truck, RotateCcw, Shield,
-  Plus, Minus, BookOpen, Calendar, Hash, Globe, ChevronRight,
+  Heart, Share2, Truck, RotateCcw, Shield,
+  BookOpen, Calendar, Hash, Globe, ChevronRight,
 } from 'lucide-react'
-import { getBookById, getRelatedBooks, getAllBooks } from '@/lib/books'
-import { useCart } from '@/context/CartContext'
+import { getBookById, getRelatedBooks } from '@/lib/books'
 import BookCover from '@/components/BookCover'
 import BookCard from '@/components/BookCard'
 import StarRating from '@/components/StarRating'
+import AddToCartBox from '@/components/AddToCartBox'
 import { formatPrice, calculateDiscount } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
 
 const fakeReviews = [
   { name: 'Carmen López', avatar: 'CL', rating: 5, date: 'Hace 2 semanas', text: 'Una obra absolutamente imprescindible. Lo recomiendo a todo el mundo, llegó perfectamente embalado y en tiempo récord.' },
@@ -20,20 +19,11 @@ const fakeReviews = [
   { name: 'Laura Fernández', avatar: 'LF', rating: 4, date: 'Hace 2 meses', text: 'Muy buena selección y el envío fue rapidísimo. El libro en perfectas condiciones.' },
 ]
 
-export default function BookPage({ params }: { params: { id: string } }) {
-  const book = getBookById(params.id)
+export default async function BookPage({ params }: { params: { id: string } }) {
+  const book = await getBookById(params.id)
   if (!book) notFound()
 
-  const [quantity, setQuantity] = useState(1)
-  const [added, setAdded] = useState(false)
-  const { addItem } = useCart()
-  const related = getRelatedBooks(book, 4)
-
-  const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) addItem(book)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
-  }
+  const related = await getRelatedBooks(book, 4)
 
   return (
     <div className="min-h-screen">
@@ -143,40 +133,7 @@ export default function BookPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Quantity + Add */}
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-3 hover:bg-gray-50 transition-colors font-medium"
-                >
-                  <Minus size={16} />
-                </button>
-                <span className="px-5 py-3 font-bold text-gray-900 min-w-[3rem] text-center">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity(Math.min(book.stock, quantity + 1))}
-                  className="px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-
-              <button
-                onClick={handleAddToCart}
-                disabled={book.stock === 0}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-all ${
-                  added
-                    ? 'bg-green-500 text-white'
-                    : book.stock === 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-[#F97316] hover:bg-[#C2570F] text-white active:scale-95'
-                }`}
-              >
-                <ShoppingCart size={18} />
-                {added ? '¡Añadido!' : 'Añadir al carrito'}
-              </button>
-            </div>
+            <AddToCartBox book={book} />
 
             {/* Guarantees */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl mb-6">

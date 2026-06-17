@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ShoppingCart, Heart } from 'lucide-react'
-import { Book } from '@/lib/books'
+import type { Book } from '@/lib/books-types'
 import { useCart } from '@/context/CartContext'
 import BookCover from './BookCover'
 import StarRating from './StarRating'

@@ -2,18 +2,18 @@
 
 import Link from 'next/link'
 import { ShoppingCart, Sparkles } from 'lucide-react'
-import { Combo, getComboBooks } from '@/lib/books'
+import type { Combo, Book } from '@/lib/books-types'
 import { useCart } from '@/context/CartContext'
 import BookCover from './BookCover'
 import { formatPrice, calculateDiscount } from '@/lib/utils'
 
 interface ComboCardProps {
   combo: Combo
+  books: Book[]
 }
 
-export default function ComboCard({ combo }: ComboCardProps) {
+export default function ComboCard({ combo, books }: ComboCardProps) {
   const { addItem } = useCart()
-  const books = getComboBooks(combo)
   const savings = combo.originalPrice - combo.price
   const discount = calculateDiscount(combo.originalPrice, combo.price)
 

@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Search, SlidersHorizontal, X, Grid3X3, List, ChevronDown } from 'lucide-react'
-import { getAllBooks, categories, type Book } from '@/lib/books'
+import { categories } from '@/lib/categories'
+import type { Book } from '@/lib/books-types'
 import BookCard from '@/components/BookCard'
 
 const SORT_OPTIONS = [
@@ -39,8 +40,28 @@ function CatalogoContent() {
   const [minRating, setMinRating] = useState(0)
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [filterOpen, setFilterOpen] = useState(false)
+  const [allBooks, setAllBooks] = useState<Book[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const allBooks = getAllBooks()
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    fetch('/api/books')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setAllBooks(data.books ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setAllBooks([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const categoryCounts: Record<string, number> = {}
   allBooks.forEach((b) => {
     categoryCounts[b.categorySlug] = (categoryCounts[b.categorySlug] ?? 0) + 1
@@ -299,7 +320,11 @@ function CatalogoContent() {
             )}
 
             {/* Results */}
-            {filteredBooks.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-24 text-gray-400 text-sm">
+                Cargando catálogo...
+              </div>
+            ) : filteredBooks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <Search size={48} className="text-gray-200 mb-4" />
                 <p className="text-gray-500 font-medium mb-1">No se encontraron libros</p>

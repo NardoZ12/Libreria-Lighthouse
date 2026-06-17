@@ -1,23 +1,30 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, ArrowRight, BookMarked, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Book } from '@/lib/books-types'
 import BookCover from '@/components/BookCover'
 
+const AUTOPLAY_MS = 4000
+
 export default function HomeHero({ featured }: { featured: Book[] }) {
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
-  const scrollerRef = useRef<HTMLDivElement>(null)
+  const slides = featured.slice(0, 8)
+  const [index, setIndex] = useState(0)
 
-  const scrollByAmount = (direction: 'left' | 'right') => {
-    const el = scrollerRef.current
-    if (!el) return
-    const card = el.querySelector<HTMLElement>('[data-hero-slide]')
-    const cardWidth = card ? card.getBoundingClientRect().width + 16 : 200
-    el.scrollBy({ left: direction === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' })
+  useEffect(() => {
+    if (slides.length < 2) return
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % slides.length)
+    }, AUTOPLAY_MS)
+    return () => clearInterval(timer)
+  }, [slides.length])
+
+  const goTo = (next: number) => {
+    setIndex(((next % slides.length) + slides.length) % slides.length)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -112,68 +119,77 @@ export default function HomeHero({ featured }: { featured: Book[] }) {
           </div>
 
           {/* Right: Book slider */}
-          <div className="relative h-[420px] flex items-center">
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
-            </div>
+          {slides.length > 0 && (
+            <div className="relative h-[420px] lg:h-[480px] flex items-center justify-center group">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
+              </div>
 
-            <div
-              ref={scrollerRef}
-              className="relative flex gap-4 overflow-x-auto h-full w-full items-center px-1 snap-x snap-mandatory scrollbar-hide"
-              style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-            >
-              {featured.slice(0, 8).map((book) => (
-                <Link
-                  key={book.id}
-                  href={`/libros/${book.id}`}
-                  data-hero-slide
-                  className="snap-start flex-shrink-0 w-44 sm:w-48 h-[380px] bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl p-4 flex flex-col items-center text-center backdrop-blur-sm transition-colors"
-                >
-                  <div className="w-full h-64 flex items-center justify-center mb-3">
-                    {book.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={book.image}
-                        alt={book.title}
-                        className="max-h-full max-w-full object-contain drop-shadow-xl"
-                      />
-                    ) : (
-                      <BookCover
-                        title={book.title}
-                        author={book.author}
-                        coverColors={book.coverColors}
-                        category={book.category}
-                        size="lg"
-                      />
-                    )}
-                  </div>
-                  <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
-                    {book.title}
-                  </p>
-                  <p className="text-blue-200/60 text-xs mt-1">{book.author}</p>
-                </Link>
-              ))}
-            </div>
-
-            {featured.length > 1 && (
-              <div className="hidden sm:flex absolute -bottom-2 right-1 gap-2">
+              {slides.length > 1 && (
                 <button
-                  onClick={() => scrollByAmount('left')}
+                  onClick={() => goTo(index - 1)}
                   aria-label="Anterior"
-                  className="w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                  className="absolute left-0 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
                 >
                   <ChevronLeft size={18} />
                 </button>
+              )}
+
+              <Link
+                key={slides[index].id}
+                href={`/libros/${slides[index].id}`}
+                className="relative w-full max-w-[300px] h-full flex flex-col items-center text-center animate-fade-in"
+              >
+                <div className="w-full flex-1 flex items-center justify-center">
+                  {slides[index].image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={slides[index].image}
+                      alt={slides[index].title}
+                      className="max-h-full max-w-full object-contain drop-shadow-2xl"
+                    />
+                  ) : (
+                    <BookCover
+                      title={slides[index].title}
+                      author={slides[index].author}
+                      coverColors={slides[index].coverColors}
+                      category={slides[index].category}
+                      size="xl"
+                    />
+                  )}
+                </div>
+                <p className="text-white font-semibold leading-snug mt-4 line-clamp-2">
+                  {slides[index].title}
+                </p>
+                <p className="text-blue-200/60 text-sm mt-1">{slides[index].author}</p>
+              </Link>
+
+              {slides.length > 1 && (
                 <button
-                  onClick={() => scrollByAmount('right')}
+                  onClick={() => goTo(index + 1)}
                   aria-label="Siguiente"
-                  className="w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                  className="absolute right-0 z-10 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
                 >
                   <ChevronRight size={18} />
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+
+              {slides.length > 1 && (
+                <div className="absolute bottom-0 flex gap-1.5">
+                  {slides.map((book, i) => (
+                    <button
+                      key={book.id}
+                      onClick={() => goTo(i)}
+                      aria-label={`Ir a la diapositiva ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all ${
+                        i === index ? 'w-6 bg-gold' : 'w-1.5 bg-white/25 hover:bg-white/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>

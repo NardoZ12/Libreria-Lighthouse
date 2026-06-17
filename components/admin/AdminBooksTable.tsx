@@ -90,6 +90,7 @@ export default function AdminBooksTable({ initialBooks }: AdminBooksTableProps) 
               <th className="px-4 py-3">Categoría</th>
               <th className="px-4 py-3">Precio</th>
               <th className="px-4 py-3">Stock</th>
+              <th className="px-4 py-3">Destacado</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
@@ -112,6 +113,13 @@ export default function AdminBooksTable({ initialBooks }: AdminBooksTableProps) 
                   >
                     {book.stock}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  {book.featured && (
+                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gold/15 text-gold-dark">
+                      En portada
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-2">
@@ -136,7 +144,7 @@ export default function AdminBooksTable({ initialBooks }: AdminBooksTableProps) 
             ))}
             {books.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
                   No hay libros en el catálogo.
                 </td>
               </tr>

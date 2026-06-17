@@ -1,15 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ArrowRight, BookMarked } from 'lucide-react'
+import { Search, ArrowRight, BookMarked, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Book } from '@/lib/books-types'
 import BookCover from '@/components/BookCover'
 
 export default function HomeHero({ featured }: { featured: Book[] }) {
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  const scrollByAmount = (direction: 'left' | 'right') => {
+    const el = scrollerRef.current
+    if (!el) return
+    const card = el.querySelector<HTMLElement>('[data-hero-slide]')
+    const cardWidth = card ? card.getBoundingClientRect().width + 16 : 200
+    el.scrollBy({ left: direction === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' })
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,34 +111,68 @@ export default function HomeHero({ featured }: { featured: Book[] }) {
             </div>
           </div>
 
-          {/* Right: Book showcase */}
-          <div className="hidden lg:flex justify-center items-center relative h-[420px]">
-            <div className="absolute inset-0 flex items-center justify-center">
+          {/* Right: Book slider */}
+          <div className="relative h-[420px] flex items-center">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-72 h-72 bg-gold/15 rounded-full blur-3xl" />
             </div>
-            {featured.slice(0, 3).map((book, i) => {
-              const transforms = [
-                'rotate-[-8deg] translate-x-[-50px] translate-y-[20px] scale-[0.88] opacity-80',
-                'rotate-[4deg] translate-x-[30px] translate-y-[-10px] scale-[0.94] opacity-90',
-                'rotate-[-2deg] translate-x-[-10px] translate-y-[0px] scale-[1]',
-              ]
-              const zIndexes = ['z-10', 'z-20', 'z-30']
-              return (
-                <div
+
+            <div
+              ref={scrollerRef}
+              className="relative flex gap-4 overflow-x-auto h-full w-full items-center px-1 snap-x snap-mandatory scrollbar-hide"
+              style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+            >
+              {featured.slice(0, 8).map((book) => (
+                <Link
                   key={book.id}
-                  className={`absolute transform ${transforms[i]} ${zIndexes[i]} transition-all duration-300`}
+                  href={`/libros/${book.id}`}
+                  data-hero-slide
+                  className="snap-start flex-shrink-0 w-44 sm:w-48 h-[380px] bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl p-4 flex flex-col items-center text-center backdrop-blur-sm transition-colors"
                 >
-                  <BookCover
-                    title={book.title}
-                    author={book.author}
-                    coverColors={book.coverColors}
-                    category={book.category}
-                    image={book.image}
-                    size="xl"
-                  />
-                </div>
-              )
-            })}
+                  <div className="w-full h-64 flex items-center justify-center mb-3">
+                    {book.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={book.image}
+                        alt={book.title}
+                        className="max-h-full max-w-full object-contain drop-shadow-xl"
+                      />
+                    ) : (
+                      <BookCover
+                        title={book.title}
+                        author={book.author}
+                        coverColors={book.coverColors}
+                        category={book.category}
+                        size="lg"
+                      />
+                    )}
+                  </div>
+                  <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
+                    {book.title}
+                  </p>
+                  <p className="text-blue-200/60 text-xs mt-1">{book.author}</p>
+                </Link>
+              ))}
+            </div>
+
+            {featured.length > 1 && (
+              <div className="hidden sm:flex absolute -bottom-2 right-1 gap-2">
+                <button
+                  onClick={() => scrollByAmount('left')}
+                  aria-label="Anterior"
+                  className="w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  onClick={() => scrollByAmount('right')}
+                  aria-label="Siguiente"
+                  className="w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
